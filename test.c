@@ -269,24 +269,23 @@ void gameTest() {
 }
 
 void stackBacktrackTest() {
-	int x;
+
 	SudokuBoard *sudoku = initializeBoard(2, 3);
 	getCell(sudoku, 0, 0)->fixed = 1;
 	getCell(sudoku, 0, 0)->value = 2;
 	getCell(sudoku, 5, 5)->fixed = 1;
 	getCell(sudoku, 5, 5)->value = 2;
-	x = findDeterministicSolutionRec(sudoku, 0, 0); /* recursive */
 	printBoard3(sudoku);
-	printf("Sol: %d\n", x);
+
 
 	sudoku = initializeBoard(2, 3);
 	getCell(sudoku, 0, 0)->fixed = 1;
 	getCell(sudoku, 0, 0)->value = 2;
 	getCell(sudoku, 5, 5)->fixed = 1;
 	getCell(sudoku, 5, 5)->value = 2;
-	x = findDeterministicSolutionStack(sudoku); /* using stack */
+
 	printBoard3(sudoku);
-	printf("Sol: %d\n", x);
+
 }
 
 void parserTest() {
