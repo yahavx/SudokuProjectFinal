@@ -103,11 +103,6 @@ void printBoard3(SudokuBoard *sudoku) {
 	printBoard(sudoku, SOLVE, 1);
 }
 
-/*
- void printAction(Action actionType){
-
- }
- */
 
 void printFormat(CommandType command){
 	printFormatWithRange(command, 0);
@@ -210,10 +205,6 @@ void printInstruction(Instruction instType) {
 
 	if (instType == GAME_SAVED) {
 		printf("Game saved successfully.\n");
-	}
-
-	if (instType == GAME_LOADED) {
-		printf("Game loaded successfully.\n");
 	}
 
 	if (instType == SOLVEABLE) {

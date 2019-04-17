@@ -9,7 +9,6 @@
 #define MAINAUX_H_
 
 #include "Game.h"
-
 #include "SPBufferset.h"
 
 /* Defines error type */
@@ -57,8 +56,7 @@ typedef enum {
 	WELCOME,
 	EXITING,
 	ENTER_COMMAND,
-	GAME_SAVED,
-	GAME_LOADED
+	GAME_SAVED
 } Instruction;
 
 typedef enum {

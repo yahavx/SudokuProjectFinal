@@ -88,7 +88,7 @@ void safeCopy(char* stream, char* path) {
 	path[i] = '\0';
 }
 
-int checkSolveCommand(char* stream, char* path) {/*working*/
+int checkSolveCommand(char* stream, char* path) {
 
 	int cnt;
 	if (stream == NULL) {
@@ -111,7 +111,7 @@ int checkSolveCommand(char* stream, char* path) {/*working*/
 	}
 }
 
-CommandType checkEditCommand(char* stream, char* path) {/*working*/
+CommandType checkEditCommand(char* stream, char* path) {
 	int cnt;
 
 	if (stream == NULL) {
@@ -130,7 +130,7 @@ CommandType checkEditCommand(char* stream, char* path) {/*working*/
 
 }
 
-int checkMarkErrorsCommand(char* stream, Status mode, int params[3]) {/*working*/
+int checkMarkErrorsCommand(char* stream, Status mode, int params[3]) {
 
 	int cnt, wrong_value_for_x;
 	wrong_value_for_x = 0;
@@ -196,7 +196,7 @@ int checkParamsNumber(char* stream, int paramsNum) {
 	return 0;
 }
 
-int checkSeveralCommands(char* stream, Status mode) { /*working*/
+int checkSeveralCommands(char* stream, Status mode) {
 	char command[256];
 	safeCopy(stream, command);
 	if (mode == INIT) {
@@ -211,7 +211,7 @@ int checkSeveralCommands(char* stream, Status mode) { /*working*/
 	return 1;
 }
 
-int checkSetCommand(char* stream, int range, Status mode, int params[3]) {/*working*/
+int checkSetCommand(char* stream, int range, Status mode, int params[3]) {
 	int num;
 	int count_params = 0;
 
@@ -265,7 +265,7 @@ int checkSetCommand(char* stream, int range, Status mode, int params[3]) {/*work
 
 }
 
-int isFloat(char * stream) {
+int isFloat(char* stream) {
 	int bol, i;
 	i = 0;
 	bol = 0;
@@ -283,7 +283,7 @@ int isFloat(char * stream) {
 	return 1;
 }
 
-int checkGuessCommand(char* stream, Status mode, double* threshold) {/*working*/
+int checkGuessCommand(char* stream, Status mode, double* threshold) {
 	int wrong_value_for_X = 0;
 	double x;
 	if (mode != SOLVE) {
@@ -321,7 +321,7 @@ int checkGuessCommand(char* stream, Status mode, double* threshold) {/*working*/
 	return 1;
 }
 
-int checkGenerateCommand(char* stream, int range, Status mode, int params[3]) {/*working*/
+int checkGenerateCommand(char* stream, int range, Status mode, int params[3]) {
 	int num, count_params;
 	count_params = 0;
 

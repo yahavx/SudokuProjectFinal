@@ -26,7 +26,6 @@ SudokuBoard* load(SudokuBoard *sudoku, char *fileName, int *success) {
 		if (sudoku != NULL)
 			destroyBoard(sudoku); /* free memory resources of old board */
 		sudoku = initializeBoard(3, 3);
-		printInstruction(GAME_LOADED);
 		*success = 1;
 		return sudoku;
 	}
@@ -73,7 +72,6 @@ SudokuBoard* load(SudokuBoard *sudoku, char *fileName, int *success) {
 	markErroneousCells(sudoku);
 
 	fclose(input);
-	printInstruction(GAME_LOADED);
 	*success = 1;
 	return sudoku;
 }

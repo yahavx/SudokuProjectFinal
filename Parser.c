@@ -37,10 +37,6 @@ Command* createIllegalCommand() {
 	return toReturn;
 }
 
-/* Creates a new command struct object, and assign given arguments to it.
- * Return a pointer to the new struct.
- * @pre - path is an initialized array, or NULL.
- */
 Command* createCommand(int params[3], char path[256], CommandType cmd,
 		double threshold) {
 	Command* toReturn = (Command*) malloc(sizeof(Command));
@@ -69,7 +65,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	if (sudoku != NULL) {
 		n = sudoku->n;
 		m = sudoku->m;
-	} else {
+	} else { /*defoult parameters, the board not initialize only in init mode, and their values doesn't matter*/
 		n = 1;
 		m = 1;
 	}
@@ -91,6 +87,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		cmdToReturn = createCommand(params, path, EMPTY_COMMAND, 0);
 		return cmdToReturn; /* empty command, skip to the next one, print nothing */
 	}
+
 	c[1] = fgetc(stdin);
 	assertFget();
 	if (c[0] == '\r' && c[1] == '\n') {
@@ -98,25 +95,35 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn; /* empty command, skip to the next one, print nothing */
 	}
 
+	if (c[1] == '\n') { /*handaling the case of command which is shorter than 2 chars but not empty command */
+		if (c[0] != ' ' && c[0] != '\t' && c[0] != '\n' && c[0] != '\v'
+				&& c[0] != '\f' && c[0] != 'r') {
+			printf("Unknown Command, try again.\n");
+			cmdToReturn = createCommand(params, path, UNKNOWN_COMMAND, 0);
+			return cmdToReturn;
+		}
+	}
+
 	fgets(str, 256, stdin);
 	assertFget();
 
 	strcat(c, str);
-
 	if (strlen(c) > MAX_COMMAND_LENGTH) { /* command contains more than 256 characters */
 
-		finishTheLine(); /* read until the end of the command - not working!!!!!!!!!!*/
+		if (c[256] != '\0' && c[256] != '\n' && c[256] != EOF) {
+			finishTheLine(); /* read until the end of the command*/
+		}
 		printError(TOO_LONG);
 		cmdToReturn = createCommand(params, path, COMMAND_TOO_LONG, 0);
 		return cmdToReturn;
 	}
-	/*from here - all working*/
+
 	stream = strtok(c, " \t\r\n");
 	if (stream == NULL) { /* empty command, skip to the next one, print nothing */
 		cmdToReturn = createCommand(params, path, EMPTY_COMMAND, 0);
 		return cmdToReturn;
 	}
-	/* solve command- working */
+	/* solve command*/
 	if (strcmp(stream, "solve") == 0) {
 		stream = strtok(NULL, " \t\r\n");
 		if (checkSolveCommand(stream, path)) { /*working*/
@@ -127,7 +134,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		}
 		return cmdToReturn;
 	}
-	/*edit- working*/
+	/*edit command*/
 	if (strcmp(stream, "edit") == 0) {/*to fix, not working !*/
 		stream = strtok(NULL, " \t\r\n");
 		cmd = checkEditCommand(stream, path);
@@ -135,7 +142,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*mark errors- working*/
+	/*mark errors command*/
 	if (strcmp(stream, "mark_errors") == 0) {
 		stream = strtok(NULL, " \t\r\n");
 		if (checkMarkErrorsCommand(stream, mode, params) == 1) {
@@ -147,7 +154,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*print board- working*/
+	/*print board command*/
 	if (strcmp(stream, "print_board") == 0) {
 		if (checkSeveralCommands(stream, mode)) {
 			cmdToReturn = createCommand(params, path, PRINT_BOARD, 0);
@@ -157,7 +164,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*set- working  */
+	/*set command */
 	if (strcmp(stream, "set") == 0) {
 		stream = strtok(NULL, " \t\r\n");
 		if (checkSetCommand(stream, row_size, mode, params) == 1) {
@@ -169,7 +176,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*validate- working*/
+	/*validate command*/
 	if (strcmp(stream, "validate") == 0) {
 
 		if (checkSeveralCommands(stream, mode)) {
@@ -181,7 +188,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*guess- working*/
+	/*guess command*/
 	if (strcmp(stream, "guess") == 0) {
 		stream = strtok(NULL, " \t\r\n");
 		if (checkGuessCommand(stream, mode, &threshold) == 1) {
@@ -192,7 +199,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*generate- working*/
+	/*generate command*/
 	if (strcmp(stream, "generate") == 0) {
 		stream = strtok(NULL, " \t\r\n");
 		if (checkGenerateCommand(stream, row_size, mode, params)) {
@@ -203,7 +210,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*undo-working*/
+	/*undo command*/
 	if (strcmp(stream, "undo") == 0) {
 
 		if (checkSeveralCommands(stream, mode)) {
@@ -215,7 +222,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*redo-working*/
+	/*redo command*/
 	if (strcmp(stream, "redo") == 0) {
 
 		if (checkSeveralCommands(stream, mode)) {
@@ -226,7 +233,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*save- working, but printing invalid board error after saving*/
+	/*save command*/
 	if (strcmp(stream, "save") == 0) {
 		stream = strtok(NULL, " \t\r\n");
 		if (checkSaveCommand(stream, mode, path)) {
@@ -237,7 +244,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/* hint- working*/
+	/* hint command*/
 	if (strcmp(stream, "hint") == 0) {
 		safeCopy(stream, command_name);
 		stream = strtok(NULL, " \t\r\n");
@@ -249,7 +256,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*  guess hint- working, same sigfoult at beggining**/
+	/* guess hint command*/
 	if (strcmp(stream, "guess_hint") == 0) {
 		safeCopy(stream, command_name);
 		stream = strtok(NULL, " \t\r\n");
@@ -261,7 +268,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/* num solutions-working*/
+	/* num solutions command*/
 	if (strcmp(stream, "num_solutions") == 0) {
 
 		if (checkSeveralCommands(stream, mode)) {
@@ -274,7 +281,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*autofill- working*/
+	/*autofill command*/
 	if (strcmp(stream, "autofill") == 0) {
 		stream = strtok(NULL, " \t\r\n");
 		if (checkAutofillCommand(stream, mode)) {
@@ -286,7 +293,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*reset-working*/
+	/*reset command*/
 	if (strcmp(stream, "reset") == 0) {
 
 		if (checkSeveralCommands(stream, mode)) {
@@ -297,7 +304,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		return cmdToReturn;
 	}
 
-	/*exit - working*/
+	/*exit command*/
 	if (strcmp(stream, "exit") == 0) {
 		stream = strtok(NULL, " \t\r\n");
 		if (checkParamsNumber(stream, 0) == 0) {

@@ -11,42 +11,6 @@
 #include "Game.h"
 #include "Gurobi.h"
 
-/*int validConfiguration2(SudokuBoard* sudoku, int i, int j) {
-	int k, l, N, val, n, m;
-	Block b;
-
-	n = sudoku->n;
-	m = sudoku->m;
-	N = n * m;
-	val = getCell(sudoku, i, j)->value;
-	if (val == 0) {
-		return 1;
-	}
-
-	for (k = 0; k < N; k++) {  row check
-		if ((k != j) && (val == getCell(sudoku, i, k)->value)) {
-			return 0;
-		}
-	}
-
-	for (l = 0; l < N; l++) {  column check
-		if ((l != i) && (val == getCell(sudoku, l, j)->value)) {
-			return 0;
-		}
-	}
-
-	b = sudoku->board[i / m][j / n];  the block containing cell (i,j)
-
-	for (k = 0; k < m; k++) {
-		for (l = 0; l < n; l++) {
-			if (!(i % m == k && j % n == l) && val == b.cells[k][l].value) {
-				return 0;
-			}
-		}
-	}
-
-	return 1;
-}*/
 
 int validConfiguration(SudokuBoard* sudoku, int i, int j) {
 	int k, l, N, val, n, m, blockStartI, blockStartJ;
