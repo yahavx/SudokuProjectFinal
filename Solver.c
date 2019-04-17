@@ -11,7 +11,7 @@
 #include "Game.h"
 #include "Gurobi.h"
 
-int validConfiguration2(SudokuBoard* sudoku, int i, int j) {
+/*int validConfiguration2(SudokuBoard* sudoku, int i, int j) {
 	int k, l, N, val, n, m;
 	Block b;
 
@@ -23,19 +23,19 @@ int validConfiguration2(SudokuBoard* sudoku, int i, int j) {
 		return 1;
 	}
 
-	for (k = 0; k < N; k++) { /* row check */
+	for (k = 0; k < N; k++) {  row check
 		if ((k != j) && (val == getCell(sudoku, i, k)->value)) {
 			return 0;
 		}
 	}
 
-	for (l = 0; l < N; l++) { /* column check */
+	for (l = 0; l < N; l++) {  column check
 		if ((l != i) && (val == getCell(sudoku, l, j)->value)) {
 			return 0;
 		}
 	}
 
-	b = sudoku->board[i / m][j / n]; /* the block containing cell (i,j) */
+	b = sudoku->board[i / m][j / n];  the block containing cell (i,j)
 
 	for (k = 0; k < m; k++) {
 		for (l = 0; l < n; l++) {
@@ -46,7 +46,7 @@ int validConfiguration2(SudokuBoard* sudoku, int i, int j) {
 	}
 
 	return 1;
-}
+}*/
 
 int validConfiguration(SudokuBoard* sudoku, int i, int j) {
 	int k, l, N, val, n, m, blockStartI, blockStartJ;

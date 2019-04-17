@@ -16,61 +16,6 @@
 #include "unistd.h"
 #include "Gurobi.h"
 
-SudokuBoard* load(SudokuBoard *sudoku, char *fileName) { /* this function implements solve and edit commands */
-	int i, j, N, num;
-	char n[2], m[2];
-	FILE *input;
-
-	if (fileName == NULL) { /* edit without a file */
-		if (sudoku != NULL)
-			destroyBoard(sudoku); /* free memory resources of old board */
-		sudoku = initializeBoard(3, 3);
-		return sudoku;
-	}
-
-	if (access(fileName, F_OK) == -1) {
-		printError(FILE_NOT_EXIST);
-		return sudoku;
-	}
-
-	input = fopen(fileName, "r");
-	if (!assertFopen(input)) {
-		return sudoku;
-	}
-
-	if (!isValidBoardFormat(input)) {
-		printError(INVALID_BOARD_FORMAT);
-
-		fclose(input);
-		return sudoku;
-	}
-
-	if (sudoku != NULL)
-		destroyBoard(sudoku); /* free memory resources of old board */
-
-	rewind(input);
-	fscanf(input, "%s", m);
-	fscanf(input, "%s", n);
-	sudoku = initializeBoard(atoi(n), atoi(m));
-	N = atoi(n) * atoi(m);
-
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < N; j++) {
-			fscanf(input, "%d", &num);
-			getCell(sudoku, i, j)->value = num;
-			if (fgetc(input) == '.') {
-				getCell(sudoku, i, j)->fixed = 1;
-			}
-		}
-	}
-
-	markErroneousCells(sudoku);
-
-	fclose(input);
-
-	return sudoku;
-}
-
 int set(SudokuBoard* sudoku, int i, int j, int z, Status mode, List* list) {
 	Cell *c = getCell(sudoku, i, j);
 
@@ -133,9 +78,10 @@ int redo(SudokuBoard* sudoku, List * list) {
 	return 1;
 }
 
-void reset(SudokuBoard* sudoku, List * list) {
+int reset(SudokuBoard* sudoku, List * list) {
 	if (list->CurrentMove == list->Head) {
-		return;
+		printError(NO_MOVE_TO_UNDO);
+		return 0;
 	}
 
 	while (list->CurrentMove != list->Head) { /* while didn't reach the sentinel */
@@ -145,43 +91,7 @@ void reset(SudokuBoard* sudoku, List * list) {
 	}
 
 	markErroneousCells(sudoku);
-}
-
-void save(SudokuBoard *sudoku, char *fileName, Status mode) {
-	int i, j, n, m, N;
-	FILE *output;
-
-	if (mode == EDIT) {
-		if (isErroneous(sudoku)) {
-			printError(ERRONEOUS_BOARD);
-			return;
-		}
-		if (!validate(sudoku)) {
-			printError(UNSOLVEABLE_BOARD);
-			return;
-		}
-	}
-
-	output = fopen(fileName, "w");
-	assertFopen(output);
-
-	m = sudoku->m, n = sudoku->n;
-	fprintf(output, "%d %d", m, n);
-	N = n * m;
-	for (i = 0; i < N; i++) {
-		fprintf(output, "\n");
-		for (j = 0; j < N; j++) {
-			fprintf(output, "%d", getCell(sudoku, i, j)->value);
-			if (mode == EDIT || getCell(sudoku, i, j)->fixed == 1) {
-				if (getCell(sudoku, i, j)->value != 0) {
-					fprintf(output, ".");
-				}
-			}
-			fprintf(output, " ");
-		}
-	}
-	fclose(output);
-
+	return 1;
 }
 
 int autofill(SudokuBoard* sudoku, List *l) {

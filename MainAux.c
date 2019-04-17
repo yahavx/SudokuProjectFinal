@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "Game.h"
+#include "Parser.h"
 #include "MainAux.h"
 #include "GameAux.h"
 
@@ -32,20 +33,23 @@ SudokuBoard* initializeBoard(int n, int m) {
 	sudoku->n = n, sudoku->m = m;
 
 	N = n * m;
-	sudoku->board2 = (Cell*) malloc(N * N * sizeof(Cell));
-	assertMalloc((void*) (sudoku->board2));
+	sudoku->board = (Cell*) malloc(N * N * sizeof(Cell));
+	assertMalloc((void*) (sudoku->board));
 
 	for (i = 0; i < N * N; i++) {
-		initCell(&(sudoku->board2[i]), 0);
+		initCell(&(sudoku->board[i]), 0);
 	}
 	return sudoku;
 
 }
 
 void destroyBoard(SudokuBoard* sudoku) {
-	free(sudoku->board2);
-	free(sudoku);
-	sudoku = NULL;
+	if (sudoku != NULL) {
+		free(sudoku->board);
+		free(sudoku);
+		sudoku = NULL;
+	}
+
 }
 
 void printSeperator(int length) {
@@ -105,104 +109,241 @@ void printBoard3(SudokuBoard *sudoku) {
  }
  */
 
-void printInstruction(Instruction instType){
+void printFormat(CommandType command){
+	printFormatWithRange(command, 0);
+}
 
-	if (instType == WIN){
-		printf("Congratulations! You solved the puzzle.\n");
+void printFormatWithRange(CommandType command, int range) {
+
+	printf("Command structure: ");
+	if (command == SOLVE_COMMAND) {
+		printf("solve X\n");
+		printf("X includes a full or relative path to the file.\n");
 	}
 
-	if (instType == SOLVEABLE){
-		printf("Board is solveable.\n");
+	if (command == EDIT_WITH_FILE_NAME || command == EDIT_WITHOUT_FILE_NAME) {
+		printf("edit X\n");
+		printf(
+				"X includes a full or relative path to the file, and is an optional parameter.\n");
 	}
 
-	if (instType == UNSOLVEABLE){
-		printf("Board is unsolveable.\n");
+	if (command == MARK_ERRORS) {
+		printf("mark_errors X\n");
+		printf("X is 0 or 1.\n");
+
 	}
 
-	if (instType == EXITING){
-		printf("Hope you enjoyed the game! Exiting...\n");
+	if (command == PRINT_BOARD) {
+		printf("print_board\n");
 	}
 
-	if (instType == WELCOME){
-		printf("Welcome to the sudoku program! Enter a command to begin.\n");
+	if (command == SET) {
+		printf("set X Y Z\n");
+		printf(
+				"X and Y are integers from 1 to %d, Z is an integer from 0 to %d.\n",
+				range, range);
+	}
+
+	if (command == VALIDATE) {
+		printf("validate\n");
+	}
+
+	if (command == GUESS) {
+		printf("guess X\n");
+		printf("X is a float from 0 to 1.\n");
+	}
+
+	if (command == GENERATE) {
+		printf("generate X Y\n");
+		printf("X and Y are integers between 0 to %d.\n", range);
+	}
+
+	if (command == UNDO) {
+		printf("undo\n");
+	}
+
+	if (command == REDO) {
+		printf("redo\n");
+	}
+
+	if (command == SAVE) {
+		printf("save X\n");
+		printf("X includes a full or relative path to the file.\n");
+	}
+
+	if (command == HINT) {
+		printf("hint X Y\n");
+		printf("X and Y are integers from 1 to %d.\n", range);
+	}
+
+	if (command == GUESS_HINT) {
+		printf("guess_hint X Y\n");
+		printf("X and Y are integers from 1 to %d.\n", range);
+	}
+
+	if (command == NUM_SOLUTIONS) {
+		printf("num_solutions\n");
+	}
+
+	if (command == AUTOFILL) {
+		printf("autofill\n");
+	}
+
+	if (command == RESET) {
+		printf("reset\n");
+	}
+
+	if (command == EXIT) {
+		printf("exit\n");
 	}
 }
 
-void printError(Error errorType) {
+void printInstruction(Instruction instType) {
 
-	/* errors releated to legal commands */
+	if (instType == WELCOME) {
+		printf("Welcome to the sudoku program!\n");
+	}
+
+	if (instType == ENTER_COMMAND) {
+		printf("Please enter a command: ");
+	}
+
+	if (instType == GAME_SAVED) {
+		printf("Game saved successfully.\n");
+	}
+
+	if (instType == GAME_LOADED) {
+		printf("Game loaded successfully.\n");
+	}
+
+	if (instType == SOLVEABLE) {
+		printf("Board is solveable.\n");
+	}
+
+	if (instType == UNSOLVEABLE) {
+		printf("Board is unsolveable.\n");
+	}
+
+	if (instType == EXITING) {
+		printf("Hope you enjoyed the game! Exiting...\n");
+	}
+
+	if (instType == WIN) {
+		printf("Congratulations! You solved the puzzle.\n");
+	}
+
+}
+
+void printError(Error errorType){
+	printErrorWithRange(errorType, 0, 0);
+}
+
+void printErrorWithRange(Error errorType, int start, int end) {
+
+	printf("Error: ");
+
+	/* Errors releated to legal commands (i.e. valid input) */
 
 	if (errorType == FIXED_CELL) {
-		printf("Error: cell is fixed.\n");
+		printf("cell is fixed.\n");
 	}
 
 	if (errorType == ERRONEOUS_BOARD) {
-		printf("Error: board is erroneous.\n");
+		printf("board is erroneous.\n");
 	}
 
 	if (errorType == NO_MOVE_TO_UNDO) {
-		printf("Error: there is no move to undo.\n");
+		printf("there is no move to undo.\n");
 
 	}
 	if (errorType == NO_MOVE_TO_REDO) {
-		printf("Error: there is no move to redo.\n");
+		printf("there is no move to redo.\n");
 	}
 
 	if (errorType == FILE_NOT_EXIST) {
-		printf("Error: the file does not exist.\n");
+		printf("the file does not exist.\n");
 	}
 
 	if (errorType == INVALID_BOARD_FORMAT) {
-		printf("Error: board format is invalid.\n");
+		printf("board format is invalid.\n");
 	}
 
 	if (errorType == UNSOLVEABLE_BOARD) {
-		printf("Error: board is unsolveable.\n");
+		printf("board is unsolveable.\n");
 	}
 
-	if (errorType == CELL_IS_NOT_EMPTY){
-		printf("Error: cell already contains a value.\n");
+	if (errorType == CELL_IS_NOT_EMPTY) {
+		printf("cell already contains a value.\n");
 	}
 
-	/* errors releated to wrong input */
+	if (errorType == INVALID_X){
+		printf("invalid value for the first parameter, should be an integer between %d to %d.\n",start,end);
+	}
+
+	if (errorType == INVALID_Y){
+		printf("invalid value for the second parameter, should be an integer between %d to %d.\n",start,end);
+	}
+
+	if (errorType == INVALID_Z){
+		printf("invalid value for the third parameter, should be an integer between %d to %d.\n",start,end);
+	}
+
+	if (errorType == MARK_ERRORS_INVALID_VALUE){
+		printf("invalid value for the first parameter, should be 0 or 1.\n");
+	}
+
+	if (errorType == GUESS_INVALID_VALUE){
+		printf("invalid value for the first parameter, should be a float between 0 to 1.\n");
+	}
+
+	/* Errors releated to invalid input */
 
 	if (errorType == TOO_MANY_PARAMS) {
-		printf("Error: not enough parameters.\n");
+		printf("too many parameters for this command.\n");
 	}
 
 	if (errorType == NOT_ENOUGH_PARAMS) {
-		printf("Error: not enough parameters.\n");
+		printf("not enough parameters for this command.\n");
 	}
 
 	if (errorType == AVAILABLE_IN_EDIT_AND_SOLVE) {
-		printf(
-				"Error: this command is available only in Solve and Edit modes.\n");
+		printf("this command is available only in Solve and Edit modes.\n");
 	}
 
 	if (errorType == AVAILABLE_IN_EDIT) {
-		printf("Error: this command is available only in Edit mode.\n");
+		printf("this command is available only in Edit mode.\n");
 	}
 
 	if (errorType == AVAILABLE_IN_SOLVE) {
-		printf("Error: this command is available only in Solve mode.\n");
+		printf("this command is available only in Solve mode.\n");
 	}
 
-	/* system errors */
+	if (errorType == TOO_LONG) {
+		printf("a command should contain no more than 256 characters.\n");
+	}
+	if (errorType == INVALID_COMMAND){
+	printf("unknown command, please try again.\n");
+	}
+	/* System errors */
 
-	if (errorType == FILE_UNHANDLED){
-		printf("Error: couldn't handle file.\n");
+	if (errorType == FILE_UNHANDLED) {
+		printf("couldn't handle file.\n");
 	}
 
-	if (errorType == FGET_FAILED){
-		printf("Error: fgets has failed.\n");
+	if (errorType == FGET_FAILED) {
+		printf("fgets has failed.\n");
 	}
 
-	if (errorType == MALLOC_FAILED){
-		printf("Error: malloc has failed. Terminating the program...\n");
+	if (errorType == MALLOC_FAILED) {
+		printf("malloc has failed. Terminating the program...\n");
 	}
 
-	if (errorType == GUROBI_FAILED){
-		printf("Error: gurobi has encountered an error.\n");
+	if (errorType == GUROBI_FAILED) {
+		printf("gurobi has encountered an error.\n");
+	}
+
+	if (errorType == WRONG_PATH) {
+		printf("invalid path.");
 	}
 }
 

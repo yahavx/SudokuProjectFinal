@@ -19,6 +19,7 @@
 #include "string.h"
 #include <ctype.h>
 #include "Gurobi.h"
+#include "FileHandle.h"
 
 void stackTest() {
 	Stack* s = initialize();
@@ -54,6 +55,7 @@ void gameTest() {
 	int i, j, z, mark = 1;
 	double threshold;
 	List *list;
+	int loaded;
 	Status mode;
 	SudokuBoard *sudoku, *sudoku2;
 	char command[20];
@@ -73,7 +75,7 @@ void gameTest() {
 
 		if (strcmp(command, "solve") == 0) { /* command 1 */
 			scanf("%s", command);
-			sudoku2 =  load(sudoku, command);
+			sudoku2 =  load(sudoku, command, &loaded);
 			if (sudoku2 != sudoku){
 				sudoku = sudoku2;
 				mode = SOLVE;
@@ -84,11 +86,11 @@ void gameTest() {
 		if (strcmp(command, "edit") == 0){ /* command 2 */
 			scanf("%s", command);
 			if (strcmp(command,"null") == 0){
-				sudoku = load(sudoku,NULL);
+				sudoku = load(sudoku,NULL, &loaded);
 				continue;
 			}
 				
-			sudoku2 =  load(sudoku, command);
+			sudoku2 =  load(sudoku, command, &loaded);
 			if (sudoku2 != sudoku){
 				sudoku = sudoku2;
 				mode = EDIT;
@@ -305,16 +307,23 @@ void parserTest() {
 		t1 = strtok(NULL," \n\r\t");
 	}
 }
+void parserTest2() {
+	Status mode = INIT;
+	SudokuBoard *sudoku = initializeBoard(3, 3);
+	Command *c = parseInput(sudoku, mode);
+	printf("Command: %d, param 1: %d, param2: %d, param3: %d\npath: %s, threshold: %f", c->command, c->params[0], c->params[1],c->params[2],c->path, c->threshold);
+}
 
 void saveLoadTest() {
+	int loaded;
 	SudokuBoard *sudoku = initializeBoard(3, 3);
-	sudoku = load(sudoku, "input.txt");
+	sudoku = load(sudoku, "input.txt", &loaded);
 	printBoard3(sudoku); /* print loaded file */
 	getCell(sudoku, 2, 2)->value = 1;
 	getCell(sudoku, 2, 2)->fixed = 1;
 	printBoard3(sudoku); /* print loaded file with a change */
 	save(sudoku, "output.txt", SOLVE);
-	sudoku = load(sudoku, "output.txt");
+	sudoku = load(sudoku, "output.txt", &loaded);
 	printBoard3(sudoku); /* save change, load, and print again */
 }
 
@@ -335,6 +344,7 @@ int test() {
 	SudokuBoard *sudoku = initializeBoard(3, 3);
 	destroyBoard(sudoku);
 	srand(time(NULL));
+
 	gameTest();
 	exit(0);
 

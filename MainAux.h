@@ -9,6 +9,7 @@
 #define MAINAUX_H_
 
 #include "Game.h"
+
 #include "SPBufferset.h"
 
 /* Defines error type */
@@ -22,6 +23,11 @@ typedef enum {
 	INVALID_BOARD_FORMAT,
 	UNSOLVEABLE_BOARD,
 	CELL_IS_NOT_EMPTY,
+	INVALID_X,
+	INVALID_Y,
+	INVALID_Z,
+	MARK_ERRORS_INVALID_VALUE,
+	GUESS_INVALID_VALUE,
 
 	/* commands */
 	TOO_MANY_PARAMS,
@@ -30,9 +36,12 @@ typedef enum {
 	AVAILABLE_IN_EDIT,
 	AVAILABLE_IN_SOLVE,
 	WRONG_RANGE_OF_PARAM_VALUE,/*need to add a print commAnd*/
+	TOO_LONG,
+	INVALID_COMMAND,
 
 	/* system errors */
 	FILE_UNHANDLED,
+	WRONG_PATH,
 	MALLOC_FAILED,
 	FGET_FAILED,
 	GUROBI_FAILED
@@ -41,9 +50,42 @@ typedef enum {
 /*
  * Defines actions performed by the user.
  */
- typedef enum {
-	 WIN, SOLVEABLE, UNSOLVEABLE, WELCOME, EXITING
- } Instruction;
+typedef enum {
+	WIN,
+	SOLVEABLE,
+	UNSOLVEABLE,
+	WELCOME,
+	EXITING,
+	ENTER_COMMAND,
+	GAME_SAVED,
+	GAME_LOADED
+} Instruction;
+
+typedef enum {
+	COMMAND_TOO_LONG,
+	UNKNOWN_COMMAND, /* command does not exist */
+	ILLEGALY_HANDLED_COMMAND, /* command is not used properly */
+	EMPTY_COMMAND,
+	SOLVE_COMMAND, /* commands start here */
+	EDIT_WITH_FILE_NAME,
+	EDIT_WITHOUT_FILE_NAME,
+	MARK_ERRORS,
+	PRINT_BOARD,
+	SET,
+	VALIDATE,
+	GUESS,
+	GENERATE,
+	UNDO,
+	REDO,
+	SAVE,
+	HINT,
+	GUESS_HINT,
+	NUM_SOLUTIONS,
+	AUTOFILL,
+	RESET,
+	EXIT
+
+} CommandType;
 
 /*
  * Creates a new sudokuBoard, allocate space to all fields, and set all values to zero.
@@ -74,9 +116,29 @@ void initCell(Cell *c, int data);
 
 /*
  * Prints an error message.
+ * @param errorType - error type.
+ * @param range - a valid range for a parameter.
+ */
+void printErrorWithRange(Error errorType, int start, int end);
+
+/*
+ * Prints an error message.
  * @param errorType - info about the relevant error
  */
 void printError(Error errorType);
+
+/*
+ * Prints the correct format of a command.
+ * @param command - command type.
+ * @param range - a valid range for the command parameters.
+ */
+void printFormatWithRange(CommandType command, int range);
+
+/*
+ * Prints the correct format of a command.
+ * @param command - command type.
+ */
+void printFormat(CommandType command);
 
 /*
  * Hints the user.
@@ -88,11 +150,6 @@ void printInstruction(Instruction instType);
  * @param c - pointer to the array of char, N - array size
  */
 void initializeArray(char c[], int N);
-
-/*
- * Free the cells array of the block. does not free the block struct itself
- */
-void destroyBlock(Block* block, int m);
 
 /*
  * Destroy a sudoku board, free all memory resources.
@@ -108,6 +165,5 @@ SudokuBoard* clone(SudokuBoard* sudoku);
  * Copy values (only) from sudoku to sudokuCopy.
  */
 void copy(SudokuBoard* sudoku, SudokuBoard* sudokuCopy);
-
 
 #endif /* MAINAUX_H_ */

@@ -15,50 +15,62 @@
 #include "test.h"
 #include "SPBufferset.h"
 #include "Gurobi.h"
+#include "FileHandle.h"
 
 int main() {
-	SudokuBoard *sudoku = NULL, *sudokuAux = NULL;
+	SudokuBoard *sudoku = NULL;
 	Status mode = INIT;
 	Command *c;
 	int markErrorsVar = 1, temp, print = 0, exit = 0;
-	List *l = createNewList();
+	List *movesList = createNewList();
+	int loaded;
+
+	/*destroyList(movesList);
+	test();*/
+
 	SP_BUFF_SET()
 
 	printInstruction(WELCOME);
 
 	while (!exit) {
+		printInstruction(ENTER_COMMAND);
 		c = parseInput(sudoku, mode);
-		if (1) printf("%d %d %d %d %s %f\n",c->command, c->params[0], c->params[1], c->params[2], c->path, c->threshold);
+		/*printf(
+				"x : %d , y: %d , z : %d , threshold : %f, cmd : %d , path : %s \n",
+				c->params[0], c->params[1], c->params[2], c->threshold,
+				c->command, c->path);*/
 		switch (c->command) { /* c.command is command type */
 		case COMMAND_TOO_LONG:
 		case UNKNOWN_COMMAND:
 		case ILLEGALY_HANDLED_COMMAND:
 		case EMPTY_COMMAND:
-			break; /* appropriate errors/instructions printed through parser */
+			break; /* Appropriate errors/instructions printed through parser */
 
 		case SOLVE_COMMAND:
-			sudokuAux = load(sudoku, c->path);
-			if (sudokuAux != sudoku) { /* load was successful */
-				sudoku = sudokuAux;
+			sudoku = load(sudoku, c->path, &loaded);
+
+			if (loaded) { /* Load was successful */
 				mode = SOLVE;
-				destroyFromCurrent(l->Head); /* clear moves list */
-				printBoard(sudoku, mode, markErrorsVar);
+				destroyFromCurrent(movesList->Head); /* clear moves list */
+				print = 1;
 			}
+
 			break;
 
 		case EDIT_WITH_FILE_NAME:
 		case EDIT_WITHOUT_FILE_NAME:
 			if (c->command == EDIT_WITH_FILE_NAME) {
-				sudokuAux = load(sudoku, c->path);
-			} else { /* edit without file name */
-				sudokuAux = load(sudoku, NULL);
+				sudoku = load(sudoku, c->path, &loaded);
+			} else { /* Edit without file name */
+				sudoku = load(sudoku, NULL, &loaded);
 			}
-			if (sudokuAux != sudoku) { /* load was successful */
-				sudoku = sudokuAux;
+
+			if (loaded) { /* Load was successful */
 				mode = EDIT;
-				destroyFromCurrent(l->Head); /* clear moves list */
+				resetList(movesList); /* clear moves list */
 				print = 1;
 			}
+
 			break;
 
 		case MARK_ERRORS:
@@ -71,8 +83,8 @@ int main() {
 
 		case SET:
 			print = set(sudoku, c->params[1], c->params[0], c->params[2], mode,
-					l);
-			if (mode == EDIT) {
+					movesList);
+			if (mode != EDIT) {
 				if (isSolved(sudoku)) {
 					printInstruction(WIN);
 					mode = INIT;
@@ -95,15 +107,15 @@ int main() {
 			break;
 
 		case GENERATE:
-			print = generate(sudoku, c->params[0], c->params[1], l);
+			print = generate(sudoku, c->params[0], c->params[1], movesList);
 			break;
 
 		case UNDO:
-			print = undo(sudoku, l);
+			print = undo(sudoku, movesList);
 			break;
 
 		case REDO:
-			print = redo(sudoku, l);
+			print = redo(sudoku, movesList);
 			break;
 
 		case SAVE:
@@ -111,7 +123,7 @@ int main() {
 			break;
 
 		case HINT:
-			hint(sudoku, c->params[1],c->params[0]);
+			hint(sudoku, c->params[1], c->params[0]);
 			break;
 
 		case GUESS_HINT:
@@ -123,10 +135,12 @@ int main() {
 			break;
 
 		case AUTOFILL:
-			print = autofill(sudoku,l);
+			print = autofill(sudoku, movesList);
 			break;
 
 		case RESET:
+			print = reset(sudoku, movesList);
+			break;
 
 		case EXIT:
 			exit = 1;
@@ -139,7 +153,10 @@ int main() {
 		}
 	}
 
-	printInstruction(EXIT);
-	return 1;
+	printInstruction(EXITING);
+	destroyList(movesList);
+	destroyBoard(sudoku);
+
+	return 0;
 }
 

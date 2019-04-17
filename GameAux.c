@@ -10,7 +10,7 @@
 
 Cell* getCell(SudokuBoard *sudoku, int i, int j) {
 	int N = sudoku -> n * sudoku -> m;
-	return &(sudoku->board2[i * N + j]);
+	return &(sudoku->board[i * N + j]);
 }
 
 int isSingleLegalValue(SudokuBoard *sudoku, int i, int j) {

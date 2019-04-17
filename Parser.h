@@ -9,37 +9,12 @@
 #define PARSER_H_
 
 #include "Game.h"
-
-typedef enum {
-	COMMAND_TOO_LONG,
-	UNKNOWN_COMMAND, /* command does not exist */
-	ILLEGALY_HANDLED_COMMAND, /* command is not used properly */
-	EMPTY_COMMAND,
-	SOLVE_COMMAND, /* commands start here */
-	EDIT_WITH_FILE_NAME,
-	EDIT_WITHOUT_FILE_NAME,
-	MARK_ERRORS,
-	PRINT_BOARD,
-	SET,
-	VALIDATE,
-	GUESS,
-	GENERATE,
-	UNDO,
-	REDO,
-	SAVE,
-	HINT,
-	GUESS_HINT,
-	NUM_SOLUTIONS,
-	AUTOFILL,
-	RESET,
-	EXIT
-
-}CommandType;
+#include "MainAux.h"
 
 typedef struct {
 	CommandType command;
 	int params[3];
-	char *path;
+	char path[256];/*every command contains 256 chars at most*/
 	double threshold;
 } Command;
 
@@ -65,5 +40,7 @@ int assertFopen(FILE *fp);
  */
 Command* parseInput(SudokuBoard* sudoku , Status mode);
 
+
+Command* createCommand(int params[3], char path[256],CommandType cmd, double threshold);
 
 #endif /* PARSER_H_ */

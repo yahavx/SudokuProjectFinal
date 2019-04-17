@@ -32,20 +32,10 @@ typedef struct {
  *  'blockStartJ' is the column index of the first cell in the corresponding block
  */
 
-typedef struct {
-	Cell **cells;
-} Block;
-
-/*
- * This struct represents a block in the board.
- *  'block' is a matrix containing all the elements in the block
- */
 
 typedef struct {
 	int n, m;
-	Cell *board2;
-	Block **board;
-/*int isValid;*/
+	Cell *board;
 
 } SudokuBoard;
 
@@ -55,17 +45,6 @@ typedef struct {
  * 'isValid' = 1 if the matrix is solveable. this field is updated upon calling 'validate'
  */
 
-/*
- * Loads a board from <fileName>. Used for solve and edit commands.
- * @pre - board is in the correct format.
- */
-SudokuBoard* load(SudokuBoard *sudoku, char *fileName);
-
-/*
- * Saves a board to <fileName>.
- * @pre - if in edit mode, board is not erroneous and has a solution.
- */
-void save(SudokuBoard *sudoku, char *fileName, Status mode);
 
 /*
  * Sets cell (i,j) value to z, and mark an error if needed.
@@ -91,7 +70,7 @@ int redo(SudokuBoard* sudoku, List * list);
  * @params: pointer to undo/redo list and pointer to the board.
  * Prints the board afterwards.
  */
-void reset(SudokuBoard* sudoku, List * list);
+int reset(SudokuBoard* sudoku, List * list);
 
 /*
  * Fill all cells which contains a single legal value. Returns 1 iff action is performed.

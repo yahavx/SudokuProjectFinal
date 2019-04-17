@@ -16,7 +16,7 @@
 #include "LinkedMovesList.h"
 #include "ParserAux.h"
 
-int isValidNumber(char* stream, int n) { /* already checked, works */
+int isValidNumber(char* stream, int n) {
 	int x;
 	int i = 0;
 	while (stream[i] != '\0') {
@@ -45,16 +45,17 @@ int isNum(char* stream) {
 
 int getNum(char* string) {
 	int x;
-	if (isNum(string)) {
-		x = atoi(string);
-		return x;
+	if (string != NULL) {
+		if (isNum(string)) {
+			x = atoi(string);
+			return x;
+		}
 	}
-
 	return -1;
 }
 
-int isNumInRange(int num, int beggining, int end) {
-	if (num >= beggining && num <= end) {
+int isNumInRange(int num, int beginning, int end) {
+	if (num >= beginning && num <= end) {
 		return 1;
 	}
 	return 0;
@@ -63,274 +64,116 @@ int isNumInRange(int num, int beggining, int end) {
 int numOfArguments(char* stream) {
 	int cnt = 0;
 
+	/* should not be null at any case because we already  */
+
 	while (stream != NULL) {
 		cnt++;
+
 		stream = strtok(NULL, " \t\r\n");/*moving stream one token forward*/
+
 	}
 
 	return cnt;
 }
 
-int checkSolveCommand(char* stream) {
-	int cnt = numOfArguments(stream);
+void safeCopy(char* stream, char* path) {
+	int i = 0;
+	if (stream == NULL || path == NULL) {
+		return;
+	}
+	while (stream[i] != '\0') {
+		path[i] = stream[i];
+		i++;
+	}
+	path[i] = '\0';
+}
 
+int checkSolveCommand(char* stream, char* path) {/*working*/
+
+	int cnt;
+	if (stream == NULL) {
+		printError(NOT_ENOUGH_PARAMS);
+		printFormat(SOLVE_COMMAND);
+		return 0;
+	}
+	safeCopy(stream, path);
+	cnt = numOfArguments(stream);
 	if (cnt == 1) {
 		return 1;
-	}
-
-	else {
+	} else {
 		if (cnt == 0) {
+			printError(NOT_ENOUGH_PARAMS);
+		} else {
 			printError(TOO_MANY_PARAMS);
 		}
-
-		else {
-			printError(NOT_ENOUGH_PARAMS);
-		}
-		printf("Command format: solve <filepath>./n");
+		printFormat(SOLVE_COMMAND);
 		return 0;
 	}
 }
 
-CommandType checkEditCommand(int paramsNum) {
-	if (paramsNum == 0) {
+CommandType checkEditCommand(char* stream, char* path) {/*working*/
+	int cnt;
+
+	if (stream == NULL) {
 		return EDIT_WITHOUT_FILE_NAME;
-	} else {
-		if (paramsNum == 1) {
-			return EDIT_WITH_FILE_NAME;
-		} else {
-			printError(TOO_MANY_PARAMS);
-			printf("Command format: edit <filepath>.\n");
-			return ILLEGALY_HANDLED_COMMAND;
-		}
 	}
+	safeCopy(stream, path);
+	cnt = numOfArguments(stream);
+	if (cnt == 1) {
+		return EDIT_WITH_FILE_NAME;
+
+	} else {
+		printError(TOO_MANY_PARAMS);
+		printFormat(EDIT_WITH_FILE_NAME);
+		return ILLEGALY_HANDLED_COMMAND;
+	}
+
 }
 
-int checkMarkErrorsCommand(char* stream, Status mode) {
+int checkMarkErrorsCommand(char* stream, Status mode, int params[3]) {/*working*/
 
-	int cnt = numOfArguments(stream);
+	int cnt, wrong_value_for_x;
+	wrong_value_for_x = 0;
+
 	if (mode != SOLVE) {
 		printError(AVAILABLE_IN_SOLVE);
 		return 0;
 	}
-	if (cnt == 0) {
+
+	if (stream == NULL) {
 		printError(NOT_ENOUGH_PARAMS);
-		printf(
-				"command structure : mark_errors X , when X can be 1 or 0 only /n");
-		return 0;
-	}
-	if (cnt > 1) {
-		printError(TOO_MANY_PARAMS);
-		printf(
-				"command structure : mark_errors X , when X can be 1 or 0 only /n");
+		printFormat(MARK_ERRORS);
 		return 0;
 	}
 
-	if (stream != NULL) {/*should not be NULL at any case*/
-		if (!(strcmp(stream, "0") == 0 || strcmp(stream, "1") == 0)) {
-			printf(
-					"mark_errors X command got wrong value for the argument X /n");
-			printf("X should be 1 or 0 only /n");
-			return 0;
-		} else {
-			return 1;
-		}
+	if (!(strcmp(stream, "0") == 0 || strcmp(stream, "1") == 0)) {
+		wrong_value_for_x = 1;
 	} else {
-		return 0; /*should never get there*/
+		params[0] = atoi(stream);
 	}
+
+	cnt = numOfArguments(stream);
+	if (cnt > 1) {
+		printError(TOO_MANY_PARAMS);
+		printFormat(MARK_ERRORS);
+		return 0;
+	}
+	if (wrong_value_for_x) {
+		printError(MARK_ERRORS_INVALID_VALUE);
+		return 0;
+	}
+	return 1;
+
 }
 
 void finishTheLine() {
-	char c[258];
-
-	while (c[257] != '\0') {
-		initializeArray(c, 258);
-		fgets(c, 258, stdin);
+	char c;
+	c = fgetc(stdin);
+	assertFget();
+	while (c != '\0' && c != '\n' && c != EOF) {
+		c = fgetc(stdin);
+		assertFget();
 	}
-}
-
-/*
- * Returns the number of words in the stream, counts up to N*N.
- * @pre - 'longest' is the longest word in the stream.
- */
-int wordsCount(FILE *input, int longest, int N) {
-
-	char *str = malloc((longest + 1) * sizeof(char));
-	int count = 0;
-
-	assertMalloc((void*) str);
-
-	while (fscanf(input, "%s", str) != EOF) {
-		count++;
-		if (count == N * N + 2) { /* need to verify the first NxN words (excluding n and m) */
-			break;
-		}
-	}
-	free(str);
-	return count;
-}
-
-/*
- * Checks if word represents a valid cell format, i.e. number is in range 0-N, possibly with dot at the end.
- */
-int isValidCellFormat(char* word, int N) {
-	int x;
-	int i = 0;
-	int fixed = 0;
-
-	while (word[i] != '\0') {
-		if (!(word[i] >= '0' && word[i] <= '9')) { /* not a digit */
-			if (word[i] == '.' && word[i + 1] == '\0') {
-				fixed = 1;
-				break; /* a number followed by a dot, legal cell (fixed) */
-			}
-			/*printf("illegal word\n");*/
-			return 0;
-		}
-		i++;
-	}
-
-	x = atoi(word); /* will ignore the dot, if exists */
-
-	if (x == 0 && fixed == 1) { /* empty cell cannot be fixed, and a dot without a number before is also illegal */
-		return 0;
-	}
-
-	if (x >= 0 && x <= N) {
-		return 1;
-	}
-	/*printf("number not in range\n");*/
-	return 0; /* number is not in range */
-}
-
-/*
- * Returns number of digits in num.
- */
-int digitsInNum(int num) {
-	int count = 0;
-	while (num != 0) {
-		count++;
-		num /= 10;
-	}
-	return count;
-}
-/*
- * Returns the length of the longest word in the file, starting to read from where the pointer is.
- * @pre - file is open.
- */
-int longestWord(FILE *input) {
-	int c, length = 0;
-	int longest = 0;
-	while ((c = fgetc(input)) != -1) {
-		if (!isspace(c)) {
-			length++;
-		} else {
-			if (longest < length) {
-				longest = length;
-			}
-			length = 0;
-		}
-	}
-
-	if (longest < length) /* last word is the longest */
-		return length;
-	return longest;
-}
-
-int isValidBoardFormat(FILE* input) {
-	int debug = 1;
-	int n, m, N, wordsNum, count, longest;
-	char *stream;
-
-	longest = longestWord(input);
-
-	if (longest == 0) {
-		if (debug) {
-			printf("file is empty\n");
-		}
-		return 0; /* file contain only whitespaces */
-	}
-
-	rewind(input);
-	if (debug)
-		printf("longest word in the file: %d\n", longest);
-	stream = malloc((longest + 1) * sizeof(char));
-	assertMalloc((void*) stream);
-
-	if (fscanf(input, "%s", stream) == -1 || !isValidNumber(stream, 5)) { /* reached EOF while reading n */
-		free(stream);
-		if (debug)
-			printf("n is erroneous\n");
-		return 0;
-
-	}
-
-	n = atoi(stream);
-
-	if (fscanf(input, "%s", stream) == -1 || !isValidNumber(stream, 5)) { /* reached EOF while reading n */
-		free(stream);
-		if (debug)
-			printf("m is erroneous\n");
-		return 0;
-
-	}
-
-	m = atoi(stream);
-
-	if (n == 0 || m == 0) { /* isValidNumber allowes zero */
-		free(stream);
-		if (debug)
-			printf("n or m are zero\n");
-		return 0;
-	}
-
-	N = n * m;
-
-	rewind(input);
-
-	wordsNum = wordsCount(input, longest, N);/* retrieves the number of words in the file */
-	wordsNum -= 2; /* exclude n and m */
-
-	if (wordsNum == 0 || wordsNum < N * N) { /* found an illegal word, or not enough information */
-		free(stream);
-		if (debug)
-			printf("not enough cells: %d\n", wordsNum);
-		return 0;
-	}
-
-	count = 0; /* we need to verify the first NxN words (ignore the rest) */
-
-	rewind(input);
-	fscanf(input, "%s", stream);
-	fscanf(input, "%s", stream); /* skip n and m */
-
-	while (fscanf(input, "%s", stream) != EOF) {
-		if (!isValidCellFormat(stream, N)) {
-			if (debug)
-				printf("invalid cells format\n");
-			free(stream);
-			return 0;
-		}
-		count++;
-		if (count == N * N) {
-			break;
-		}
-	}
-
-	free(stream);
-	return 1;
-}
-
-int exceptedNumOfParams(int paramsNum, int excepted) {
-	if (excepted < paramsNum) {
-		printError(TOO_MANY_PARAMS);
-		return 0;
-	}
-
-	if (excepted > paramsNum) {
-		printError(NOT_ENOUGH_PARAMS);
-		return 0;
-	}
-	return 1;
 }
 
 int checkParamsNumber(char* stream, int paramsNum) {
@@ -353,19 +196,22 @@ int checkParamsNumber(char* stream, int paramsNum) {
 	return 0;
 }
 
-int checkSeveralCommands(char* stream, Status mode) {
+int checkSeveralCommands(char* stream, Status mode) { /*working*/
+	char command[256];
+	safeCopy(stream, command);
 	if (mode == INIT) {
 		printError(AVAILABLE_IN_EDIT_AND_SOLVE);
 		return 0;
 	}
-
+	stream = strtok(NULL, " \t\r\n");
 	if (checkParamsNumber(stream, 0) == 0) {/*print error already handaled*/
+		printf("Command structure : %s\n", command);
 		return 0;
 	}
 	return 1;
 }
 
-int checkSetCommand(char* stream, int range, Status mode, int params[3]) {
+int checkSetCommand(char* stream, int range, Status mode, int params[3]) {/*working*/
 	int num;
 	int count_params = 0;
 
@@ -375,41 +221,43 @@ int checkSetCommand(char* stream, int range, Status mode, int params[3]) {
 	}
 
 	while (stream != NULL && count_params < 2) {
-
 		num = getNum(stream);
-
-		if ((num != -1) && (isNumInRange(num, 1, range))) {
-			params[count_params] = num - 1;
-		} else {
-			/*need to add print error of wrong param value !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1*/
-			return 0;
-		}
-
+		params[count_params] = num - 1;
 		count_params++;
 		stream = strtok(NULL, " \t\r\n");
-
 	}
 
-	if (count_params != 1) {
+	if (count_params < 2) {
 		printError(NOT_ENOUGH_PARAMS);
+		printFormatWithRange(SET, range);
 		return 0;
 	}
 
 	if (stream != NULL) {
 		num = getNum(stream);
-		if ((num != -1) && (isNumInRange(num, 0, range))) {
-			params[2] = num;
-		} else {
-			/*need to add print error of wrong param value !!!!!!!!!!!!!!!!!!!!!!!!!!!11*/
-			return 0;
-		}
+		params[2] = num;
 	} else {
 		printError(NOT_ENOUGH_PARAMS);
+		printFormatWithRange(SET, range);
+		return 0;
+	}
+	stream = strtok(NULL, " \t\r\n");
+	if (checkParamsNumber(stream, 0) == 0) {/*print already*/
+		printFormatWithRange(SET, range);
 		return 0;
 	}
 
-	stream = strtok(NULL, " \t\r\n");
-	if (checkParamsNumber(stream, 0) == 0) {/*print already*/
+	if (!(isNumInRange(params[0] + 1, 1, range))) {
+		printErrorWithRange(INVALID_X, 1, range);
+		return 0;
+	}
+
+	if (!(isNumInRange(params[1] + 1, 1, range))) {
+		printErrorWithRange(INVALID_Y,1,range);
+		return 0;
+	}
+	if (!(isNumInRange(params[2], 0, range))) {
+		printErrorWithRange(INVALID_Z,0,range);
 		return 0;
 	}
 
@@ -417,7 +265,7 @@ int checkSetCommand(char* stream, int range, Status mode, int params[3]) {
 
 }
 
-int isFlout(char * stream) {
+int isFloat(char * stream) {
 	int bol, i;
 	i = 0;
 	bol = 0;
@@ -435,74 +283,85 @@ int isFlout(char * stream) {
 	return 1;
 }
 
-int cheackGuessCommand(char* stream, Status mode) {
-	int x;
+int checkGuessCommand(char* stream, Status mode, double* threshold) {/*working*/
+	int wrong_value_for_X = 0;
+	double x;
 	if (mode != SOLVE) {
 		printError(AVAILABLE_IN_SOLVE);
 		return 0;
 	}
-	if (stream != NULL) {
-		if (!isFlout(stream)) {
-			printf(
-					"guess command should get fouat between 0 to 1 as parameter");
-			return 0;
-		} else {
-			x = atof(stream);
-			if (!(x >= 0 && x <= 1)) {
-				printf(
-						"guess command should get fouat between 0 to 1 as parameter");
-				return 0;
-			}
-		}
 
-		stream = strtok(NULL, " \t\r\n");
-		if (!checkParamsNumber(stream, 0)) {/*prints*/
-			return 0;
-		}
-	} else {
+	if (stream == NULL) {
 		printError(NOT_ENOUGH_PARAMS);
+		printFormat(GUESS);
+		return 0;
+	}
+
+	if (!isFloat(stream)) {
+		wrong_value_for_X = 1;
+	} else {
+		x = atof(stream);
+		if (!(x >= 0 && x <= 1)) {
+			wrong_value_for_X = 1;
+		} else {
+			*threshold = x;
+		}
+	}
+
+	stream = strtok(NULL, " \t\r\n");
+	if (!checkParamsNumber(stream, 0)) {/*prints*/
+		printFormat(GUESS);
+		return 0;
+	}
+	if (wrong_value_for_X) {
+		printError(GUESS_INVALID_VALUE);
 		return 0;
 	}
 
 	return 1;
 }
 
-int checkGenerateCommand(char* stream, int range, Status mode, int params[3]) {
-	int num;
-	int count_params = 0;
+int checkGenerateCommand(char* stream, int range, Status mode, int params[3]) {/*working*/
+	int num, count_params;
+	count_params = 0;
 
 	if (mode != EDIT) {
 		printError(AVAILABLE_IN_EDIT);
 		return 0;
 	}
-
 	while (stream != NULL && count_params < 2) {
 		num = getNum(stream);
-		if ((num != -1) && (isNumInRange(num, 0, range * range))) {
-			params[count_params] = num;
-		} else {
-			/*need to add print error of wrong param value !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1*/
-			return 0;
-		}
+		params[count_params] = num;
 		count_params++;
 		stream = strtok(NULL, " \t\r\n");
 	}
 
-	if (count_params != 1) {
+
+	if (count_params < 2) {
 		printError(NOT_ENOUGH_PARAMS);
+		printFormatWithRange(GENERATE,range * range);
 		return 0;
 	}
 
 	if (checkParamsNumber(stream, 0) == 0) {/*prints*/
+		printFormatWithRange(GENERATE, range * range);
 		return 0;
 	}
+	if (!(isNumInRange(params[0], 0, range * range))) {
+		printErrorWithRange(INVALID_X,0,range*range);
+		return 0;
+	}
+	if (!(isNumInRange(params[1], 0, range * range))) {
+		printErrorWithRange(INVALID_Y,0, range*range);
+		return 0;
+	}
+
 	return 1;
 }
 
 int checkHint_GuessHint_Commands(char* stream, int range, Status mode,
-		int params[3]) {
-	int num;
-	int count_params = 0;
+		int params[3]) {/*wowrking*/
+	int num, count_params = 0;
 
 	if (mode != SOLVE) {
 		printError(AVAILABLE_IN_SOLVE);
@@ -511,50 +370,61 @@ int checkHint_GuessHint_Commands(char* stream, int range, Status mode,
 
 	while (stream != NULL && count_params < 2) {
 		num = getNum(stream);
-		if ((num != -1) && (isNumInRange(num, 1, range))) {
-			params[count_params] = num - 1;
-		} else {
-			/*need to add print error of wrong param value !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1*/
-			return 0;
-		}
+		params[count_params] = num - 1;
 		count_params++;
 		stream = strtok(NULL, " \t\r\n");
 	}
 
-	if (count_params != 1) {
+	if (count_params < 2) {
 		printError(NOT_ENOUGH_PARAMS);
+		printFormatWithRange(GUESS_HINT,range);
 		return 0;
 	}
 
 	if (checkParamsNumber(stream, 0) == 0) {/*prints*/
+		printFormatWithRange(GUESS_HINT,range);
 		return 0;
 	}
+
+	if (!(isNumInRange(params[0] + 1, 1, range))) {
+		printErrorWithRange(INVALID_X,1,range);
+		return 0;
+	}
+	if (!(isNumInRange(params[1] + 1, 1, range))) {
+		printErrorWithRange(INVALID_Y,1,range);
+		return 0;
+	}
+
 	return 1;
 }
 
-int checkAutofillCommand(char* stream, Status mode) {
+int checkAutofillCommand(char* stream, Status mode) { /*working*/
 	if (mode != SOLVE) {
 		printError(AVAILABLE_IN_SOLVE);
 		return 0;
 	}
 	if (checkParamsNumber(stream, 0) == 0) {/*prints*/
+		printFormat(AUTOFILL);
 		return 0;
 	}
 	return 1;
 }
 
-int checkSaveCommand(char* stream, Status mode) {
-	int d;
+int checkSaveCommand(char* stream, Status mode, char path[256]) {/*working*/
 	if (mode == INIT) {
 		printError(AVAILABLE_IN_EDIT_AND_SOLVE);
 		return 0;
 	}
-	if ((d = checkParamsNumber(stream, 1)) == 0) {/*prints*/
-		printf("%d parmas, return 0\n", d);
+	if (stream == NULL) {
+		printError(NOT_ENOUGH_PARAMS);
+		printFormat(SAVE);
 		return 0;
 	}
-
-	printf("%d parmas, return 1\n", d);
+	safeCopy(stream, path);
+	if (checkParamsNumber(stream, 1) == 0) {/*prints*/
+		printFormat(SAVE);
+		return 0;
+	}
 	return 1;
 }
 

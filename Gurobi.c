@@ -32,7 +32,7 @@ void guessHint(SudokuBoard *sudoku, int i, int j){
 }
 
 int validate(SudokuBoard *sudoku){
-	return 0;
+	return 1;
 	printf("%d", getCell(sudoku,0,0)->value);
 }
 

@@ -14,6 +14,8 @@
 #include "Game.h"
 #include "LinkedMovesList.h"
 
+#define  MAX_COMMAND_LENGTH  256
+
 void assertFget() {
 	if (ferror(stdin)) {
 		printError(FGET_FAILED);
@@ -23,37 +25,61 @@ void assertFget() {
 
 int assertFopen(FILE *fp) {
 	if (fp == NULL) {
-		printError(FILE_UNHANDLED);
 		return 0;
 	}
 	return 1;
 }
 
-Command* createCommand(int params[3], char* path, CommandType cmd,
+Command* createIllegalCommand() {
+	Command* toReturn = (Command*) malloc(sizeof(Command));
+	assertMalloc((void*) toReturn);
+	toReturn->command = ILLEGALY_HANDLED_COMMAND;
+	return toReturn;
+}
+
+/* Creates a new command struct object, and assign given arguments to it.
+ * Return a pointer to the new struct.
+ * @pre - path is an initialized array, or NULL.
+ */
+Command* createCommand(int params[3], char path[256], CommandType cmd,
 		double threshold) {
 	Command* toReturn = (Command*) malloc(sizeof(Command));
+	assertMalloc((void*) toReturn);
 	toReturn->command = cmd;
-
 	toReturn->params[0] = params[0];
 	toReturn->params[1] = params[1];
 	toReturn->params[2] = params[2];
-	toReturn->path = path;
+	strcpy(toReturn->path, path);
 	toReturn->threshold = threshold;
 	return toReturn;
 }
 
 Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	char str[257];
-	char* stream, *command;
-	char* streamCopy;
-	char c[259], c2[259];
+	char* stream;
+	char c[260];
 	CommandType cmd;
-	int params[3] = { 0 }, args = 0, error = 0;
-
+	int row_size, n, m;
+	char command_name[256];
 	Command* cmdToReturn;
-	char* path = NULL;
+	char path[256];
+	double threshold;
+	int params[3] = { 0 };
 
+	if (sudoku != NULL) {
+		n = sudoku->n;
+		m = sudoku->m;
+	} else {
+		n = 1;
+		m = 1;
+	}
+
+	row_size = n * m;
+
+	/*initialization of arrays*/
 	initializeArray(c, 259);
+	initializeArray(str, 255);
+	initializeArray(path, 256);
 
 	if ((c[0] = fgetc(stdin)) == EOF) { /*we reached EOF therefore we will finish according to the forum */
 		assertFget();
@@ -65,262 +91,228 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 		cmdToReturn = createCommand(params, path, EMPTY_COMMAND, 0);
 		return cmdToReturn; /* empty command, skip to the next one, print nothing */
 	}
-
-	if (c[0] == '\r' && (c[1] = fgetc(stdin) == '\n')) {
+	c[1] = fgetc(stdin);
+	assertFget();
+	if (c[0] == '\r' && c[1] == '\n') {
 		cmdToReturn = createCommand(params, path, EMPTY_COMMAND, 0);
 		return cmdToReturn; /* empty command, skip to the next one, print nothing */
-	} else {
-		assertFget();
 	}
 
-	fgets(str, 257, stdin);
+	fgets(str, 256, stdin);
 	assertFget();
 
-	/* checking number of characters in the command */
 	strcat(c, str);
 
-	if (c[258] != '\0' && c[258] != '\n') { /* command contains more than 256 characters */
-		finishTheLine(); /* read until the end of the command */
+	if (strlen(c) > MAX_COMMAND_LENGTH) { /* command contains more than 256 characters */
+
+		finishTheLine(); /* read until the end of the command - not working!!!!!!!!!!*/
+		printError(TOO_LONG);
 		cmdToReturn = createCommand(params, path, COMMAND_TOO_LONG, 0);
 		return cmdToReturn;
 	}
-
-	/* finished reading, and input is in a legal length */
-
-	strcpy(c2, c);
-	if (0)
-		printf("line: %s\n", c);
-	stream = strtok(c2, " \t\r\n");
-	args = numOfArguments(stream) - 1; /* excluding first token (command name) */
-	if (0)
-		printf("args = %d\n", args);
-
+	/*from here - all working*/
 	stream = strtok(c, " \t\r\n");
-	command = stream;
-	stream = strtok(NULL, " \t\r\n");
-	if (0)
-		printf("\ncommand: %s, current token: %s\n", command, stream);
-
 	if (stream == NULL) { /* empty command, skip to the next one, print nothing */
 		cmdToReturn = createCommand(params, path, EMPTY_COMMAND, 0);
 		return cmdToReturn;
 	}
-
-	if (strcmp(command, "solve") == 0) { /* solve command */
-
-		if (exceptedNumOfParams(args, 1)) {
-			strcpy(command, stream);
-			cmdToReturn = createCommand(params, command, SOLVE_COMMAND, 0); /* current token in stream is the first parameter */
-			return cmdToReturn;
+	/* solve command- working */
+	if (strcmp(stream, "solve") == 0) {
+		stream = strtok(NULL, " \t\r\n");
+		if (checkSolveCommand(stream, path)) { /*working*/
+			cmdToReturn = createCommand(params, path, SOLVE_COMMAND, 0);
 		} else {
-			error = 1;
-		}
+			cmdToReturn = createIllegalCommand();
 
+		}
+		return cmdToReturn;
+	}
+	/*edit- working*/
+	if (strcmp(stream, "edit") == 0) {/*to fix, not working !*/
+		stream = strtok(NULL, " \t\r\n");
+		cmd = checkEditCommand(stream, path);
+		cmdToReturn = createCommand(params, path, cmd, 0);
+		return cmdToReturn;
 	}
 
-	if (strcmp(stream, "edit") == 0) { /* edit command */
-		cmd = checkEditCommand(args);
-		if (cmd == EDIT_WITH_FILE_NAME) {
-			cmdToReturn = createCommand(params, stream, EDIT_WITH_FILE_NAME, 0);
-		} else {
-			cmdToReturn = createCommand(params, path, EDIT_WITHOUT_FILE_NAME,
-					0);
-			return cmdToReturn;
-		}
-	}
-	streamCopy = strtok(c, "");
-	/*mark errors*/
+	/*mark errors- working*/
 	if (strcmp(stream, "mark_errors") == 0) {
-		if (checkMarkErrorsCommand(streamCopy, mode)) {
-			stream = strtok(NULL, " \t\r\n");
-			if (stream != NULL) {/*should never be NULL at this point*/
-				params[0] = atoi(stream);
-				cmdToReturn = createCommand(params, path, MARK_ERRORS, 0);
-				return cmdToReturn;
-			} else {
-				cmdToReturn = createCommand(params, path,
-						ILLEGALY_HANDLED_COMMAND, 0);
-				return cmdToReturn;
-			}
+		stream = strtok(NULL, " \t\r\n");
+		if (checkMarkErrorsCommand(stream, mode, params) == 1) {
+			cmdToReturn = createCommand(params, path, MARK_ERRORS, 0);
+
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
-			return cmdToReturn;
+			cmdToReturn = createIllegalCommand();
 		}
+		return cmdToReturn;
 	}
 
-	/*print board*/
+	/*print board- working*/
 	if (strcmp(stream, "print_board") == 0) {
-		cmdToReturn = createCommand(params, path, PRINT_BOARD, 0);
-					return cmdToReturn;
-		if (checkSeveralCommands(streamCopy, mode)) {
+		if (checkSeveralCommands(stream, mode)) {
 			cmdToReturn = createCommand(params, path, PRINT_BOARD, 0);
-			return cmdToReturn;
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
-			return cmdToReturn;
+			cmdToReturn = createIllegalCommand();
 		}
+		return cmdToReturn;
 	}
 
-	/*set */
+	/*set- working  */
 	if (strcmp(stream, "set") == 0) {
-		if (checkSetCommand(streamCopy, mode, sudoku->n, params) == 1) {
+		stream = strtok(NULL, " \t\r\n");
+		if (checkSetCommand(stream, row_size, mode, params) == 1) {
 			cmdToReturn = createCommand(params, path, SET, 0);
 
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
 		return cmdToReturn;
 	}
 
-	/*validate*/
+	/*validate- working*/
 	if (strcmp(stream, "validate") == 0) {
-		if (checkSeveralCommands(streamCopy, mode)) {
+
+		if (checkSeveralCommands(stream, mode)) {
 			cmdToReturn = createCommand(params, path, VALIDATE, 0);
 
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
 		return cmdToReturn;
 	}
 
-	/*guess*/
+	/*guess- working*/
 	if (strcmp(stream, "guess") == 0) {
-		if (cheackGuessCommand(streamCopy, mode)) {
-			stream = strtok(NULL, " \t\r\n");
-			if (stream != NULL) { /*shoultd never be*/
-				cmdToReturn = createCommand(params, path, GUESS, atof(stream));
-			}
+		stream = strtok(NULL, " \t\r\n");
+		if (checkGuessCommand(stream, mode, &threshold) == 1) {
+			cmdToReturn = createCommand(params, path, GUESS, threshold);
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
-
 		return cmdToReturn;
 	}
 
-	/*generate*/
+	/*generate- working*/
 	if (strcmp(stream, "generate") == 0) {
-		if (checkGenerateCommand(streamCopy, sudoku->n, mode, params)) {
+		stream = strtok(NULL, " \t\r\n");
+		if (checkGenerateCommand(stream, row_size, mode, params)) {
 			cmdToReturn = createCommand(params, path, GENERATE, 0);
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
 		return cmdToReturn;
 	}
 
-	/*undo*/
+	/*undo-working*/
 	if (strcmp(stream, "undo") == 0) {
-		if (checkSeveralCommands(streamCopy, mode)) {
+
+		if (checkSeveralCommands(stream, mode)) {
 			cmdToReturn = createCommand(params, path, UNDO, 0);
-			return cmdToReturn;
+
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
-			return cmdToReturn;
+			cmdToReturn = createIllegalCommand();
 		}
+		return cmdToReturn;
 	}
 
-	/*redo*/
+	/*redo-working*/
 	if (strcmp(stream, "redo") == 0) {
-		if (checkSeveralCommands(streamCopy, mode)) {
+
+		if (checkSeveralCommands(stream, mode)) {
 			cmdToReturn = createCommand(params, path, REDO, 0);
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
 		return cmdToReturn;
 	}
 
-	/*save*/
+	/*save- working, but printing invalid board error after saving*/
 	if (strcmp(stream, "save") == 0) {
-		if (checkSaveCommand(streamCopy, mode)) {
-			stream = strtok(NULL, " \t\r\n");
-			cmdToReturn = createCommand(params, stream, SAVE, 0);
+		stream = strtok(NULL, " \t\r\n");
+		if (checkSaveCommand(stream, mode, path)) {
+			cmdToReturn = createCommand(params, path, SAVE, 0);
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
 		return cmdToReturn;
 	}
 
-	/* hint*/
+	/* hint- working*/
 	if (strcmp(stream, "hint") == 0) {
-		if (checkHint_GuessHint_Commands(streamCopy, sudoku->n, mode, params)) {
+		safeCopy(stream, command_name);
+		stream = strtok(NULL, " \t\r\n");
+		if (checkHint_GuessHint_Commands(stream, row_size, mode, params)) {
 			cmdToReturn = createCommand(params, path, HINT, 0);
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
 		return cmdToReturn;
 	}
 
-	/*  guess hint*/
+	/*  guess hint- working, same sigfoult at beggining**/
 	if (strcmp(stream, "guess_hint") == 0) {
-		if (checkHint_GuessHint_Commands(streamCopy, sudoku->n, mode, params)) {
+		safeCopy(stream, command_name);
+		stream = strtok(NULL, " \t\r\n");
+		if (checkHint_GuessHint_Commands(stream, row_size, mode, params)) {
 			cmdToReturn = createCommand(params, path, GUESS_HINT, 0);
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
 		return cmdToReturn;
 	}
 
-	/* num solutions*/
+	/* num solutions-working*/
 	if (strcmp(stream, "num_solutions") == 0) {
-		if (checkSeveralCommands(streamCopy, mode)) {
+
+		if (checkSeveralCommands(stream, mode)) {
 			cmdToReturn = createCommand(params, path, NUM_SOLUTIONS, 0);
 
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 
 		}
 		return cmdToReturn;
 	}
 
-	/*autofill*/
+	/*autofill- working*/
 	if (strcmp(stream, "autofill") == 0) {
-		if (checkAutofillCommand(streamCopy, mode)) {
+		stream = strtok(NULL, " \t\r\n");
+		if (checkAutofillCommand(stream, mode)) {
 			cmdToReturn = createCommand(params, path, AUTOFILL, 0);
 		} else {
 
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+			cmdToReturn = createIllegalCommand();
 		}
 		return cmdToReturn;
 	}
 
-	/*reset*/
+	/*reset-working*/
 	if (strcmp(stream, "reset") == 0) {
-		if (checkSeveralCommands(streamCopy, mode)) {
+
+		if (checkSeveralCommands(stream, mode)) {
 			cmdToReturn = createCommand(params, path, RESET, 0);
-			return cmdToReturn;
 		} else {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
-			return cmdToReturn;
+			cmdToReturn = createIllegalCommand();
 		}
+		return cmdToReturn;
 	}
 
-	/*exit*/
+	/*exit - working*/
 	if (strcmp(stream, "exit") == 0) {
-		if (checkParamsNumber(streamCopy, 0) == 0) {
-			cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND,
-					0);
+		stream = strtok(NULL, " \t\r\n");
+		if (checkParamsNumber(stream, 0) == 0) {
+			printFormat(EXIT);
+			cmdToReturn = createIllegalCommand();
 			return cmdToReturn;
 		} else {
+
 			cmdToReturn = createCommand(params, path, EXIT, 0);
 			return cmdToReturn;
 		}
 	}
 
-	if (error)
-		cmdToReturn = createCommand(params, path, ILLEGALY_HANDLED_COMMAND, 0);
-	return cmdToReturn; /* in case of unknown command, need to print error message from main */
+	printError(INVALID_COMMAND);
+	cmdToReturn = createCommand(params, path, UNKNOWN_COMMAND, 0);
+	return cmdToReturn;
 }
 
