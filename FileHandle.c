@@ -92,7 +92,7 @@ void save(SudokuBoard *sudoku, char *fileName, Status mode) {
 	}
 
 	output = fopen(fileName, "w");
-	if (!assertFopen(output)){
+	if (!assertFopen(output)) {
 		printError(WRONG_PATH);
 		return;
 	}
@@ -109,9 +109,12 @@ void save(SudokuBoard *sudoku, char *fileName, Status mode) {
 					fprintf(output, ".");
 				}
 			}
-			fprintf(output, " ");
+			if (j != N - 1) {
+				fprintf(output, " ");
+			}
 		}
 	}
+	fprintf(output,"\n");
 	fclose(output);
 	printInstruction(GAME_SAVED);
 }
@@ -207,7 +210,7 @@ int isValidBoardFormat(FILE* input) {
 	longest = longestWord(input);
 
 	if (longest == 0) {
-		if (debug){
+		if (debug) {
 			printf("file is empty\n");
 		}
 		return 0; /* file contain only whitespaces */

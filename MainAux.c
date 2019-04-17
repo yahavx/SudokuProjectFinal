@@ -135,7 +135,7 @@ void printFormatWithRange(CommandType command, int range) {
 	if (command == SET) {
 		printf("set X Y Z\n");
 		printf(
-				"X and Y are integers from 1 to %d, Z is an integer from 0 to %d.\n",
+				"X and Y are integers between 1 to %d, Z is an integer from 0 to %d.\n",
 				range, range);
 	}
 
@@ -145,7 +145,7 @@ void printFormatWithRange(CommandType command, int range) {
 
 	if (command == GUESS) {
 		printf("guess X\n");
-		printf("X is a float from 0 to 1.\n");
+		printf("X is a float between 0 to 1.\n");
 	}
 
 	if (command == GENERATE) {
@@ -168,12 +168,12 @@ void printFormatWithRange(CommandType command, int range) {
 
 	if (command == HINT) {
 		printf("hint X Y\n");
-		printf("X and Y are integers from 1 to %d.\n", range);
+		printf("X and Y are integers between 1 to %d.\n", range);
 	}
 
 	if (command == GUESS_HINT) {
 		printf("guess_hint X Y\n");
-		printf("X and Y are integers from 1 to %d.\n", range);
+		printf("X and Y are integers between 1 to %d.\n", range);
 	}
 
 	if (command == NUM_SOLUTIONS) {
@@ -280,11 +280,11 @@ void printErrorWithRange(Error errorType, int start, int end) {
 	}
 
 	if (errorType == MARK_ERRORS_INVALID_VALUE){
-		printf("invalid value for the first parameter, should be 0 or 1.\n");
+		printf("invalid value for the parameter, should be 0 or 1.\n");
 	}
 
 	if (errorType == GUESS_INVALID_VALUE){
-		printf("invalid value for the first parameter, should be a float between 0 to 1.\n");
+		printf("invalid value for the parameter, should be a float between 0 to 1.\n");
 	}
 
 	/* Errors releated to invalid input */
