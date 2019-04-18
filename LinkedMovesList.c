@@ -20,7 +20,7 @@ void destroyAllNodes(Node* Head);
 /* =============== PUBLIC FUNCTIONS =============== */
 
 List* createNewList() {
-	Node* Head = createNewNode(-1, -1, -1, -1, -1, -1); /* sentinel */
+	Node* Head = createNewNode(-1, -1, -1, -1, -1, -1); /* Head is always a sentinel */
 	List* list = (List*) malloc(sizeof(List));
 	assertMalloc((void*)list);
 	list->Head = Head;

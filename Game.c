@@ -16,6 +16,8 @@
 #include "unistd.h"
 #include "Gurobi.h"
 
+/* =============== PUBLIC FUNCTIONS =============== */
+
 int set(SudokuBoard* sudoku, int i, int j, int z, Status mode, List* list) {
 	Cell *c = getCell(sudoku, i, j);
 

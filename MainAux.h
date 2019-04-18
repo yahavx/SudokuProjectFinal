@@ -101,7 +101,6 @@ void assertMalloc(void* pointer);
  * Prints the current board state.
  */
 void printBoard(SudokuBoard *sudoku, Status mode, int markErrors);
-void printBoard3(SudokuBoard *sudoku);
 
 /*
  * Prints a seperator
@@ -157,7 +156,7 @@ void printInstruction(Instruction instType);
 void initializeArray(char c[], int N);
 
 /*
- * Destroy a sudoku board, free all memory resources.
+ * Destroy a sudoku board, free all its memory resources.
  */
 void destroyBoard(SudokuBoard* sudoku);
 
@@ -167,8 +166,11 @@ void destroyBoard(SudokuBoard* sudoku);
 SudokuBoard* clone(SudokuBoard* sudoku);
 
 /*
- * Copy values (only) from sudoku to sudokuCopy.
+ * Copy cell values (only) from sudoku to sudokuCopy.
  */
 void copy(SudokuBoard* sudoku, SudokuBoard* sudokuCopy);
+
+
+void printBoard3(SudokuBoard *sudoku);
 
 #endif /* MAINAUX_H_ */

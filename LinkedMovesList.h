@@ -39,12 +39,12 @@ typedef struct {
 } List;
 
 /*
- * This function creates a new list, with a sentinel as its Head node.
+ * Initializes a new list.
  */
 List* createNewList();
 
 /*
- * Adds a new move to the list (with the function parameters as its values).
+ * Adds a new move to the list (with function parameters as its values).
  * Any move beyond CurrentMove is removed.
  */
 void addNewMove(List* l, int oldValue, int z, int i, int j, int forward,
@@ -52,11 +52,12 @@ void addNewMove(List* l, int oldValue, int z, int i, int j, int forward,
 
 /*
  * Resets a list, i.e. bring it to a state as if createNewList() was just called.
+ * Free all memory resources of the previous list.
  */
 void resetList(List* L);
 
 /*
- * This function destroy list completely and free all its memory resources.
+ * Destroys a list and free all its memory resources.
  */
 void destroyList(List* L);
 

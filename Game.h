@@ -21,11 +21,9 @@ typedef enum {
 
 /*
  * This struct represents a cell in the board.
- * 'value' contains the value of the cell, 0 if it is empty
- * 'fixed' = 1 iff the cell is fixed, i.e. can't be modified
- * 'hide' = 1 iff the cell value should not be printed with the board
- * 'blockStartI' is the row index of the first cell in the corresponding block
- * 'blockStartJ' is the column index of the first cell in the corresponding block
+ * value contains the value of the cell, 0 if it is empty.
+ * fixed == 1 iff the cell is fixed.
+ * error == 1 iff the cell value is erroneous in respect to it's containing board.
  */
 
 typedef struct {
@@ -37,7 +35,7 @@ typedef struct {
 
 /*
  * This struct represents a sudoku board.
- * 'board' is the matrix containing all the blocks of the board
+ * board is the board reprenstation.
  * n, m are the board dimensions, the board contains nxm blocks, each of size mxn
  */
 
