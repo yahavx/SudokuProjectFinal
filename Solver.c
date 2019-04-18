@@ -11,7 +11,6 @@
 #include "Game.h"
 #include "Gurobi.h"
 
-
 int validConfiguration(SudokuBoard* sudoku, int i, int j) {
 	int k, l, N, val, n, m, blockStartI, blockStartJ;
 
@@ -58,25 +57,25 @@ void validNeighbours(SudokuBoard* sudoku, int i, int j, int val) {
 	m = sudoku->m;
 	N = n * m;
 
-	if (i == -1 || j == -1){
+	if (i == -1 || j == -1) {
 		printf("Warning! sentinel sent to validNeighbours.\n");
 		return;
 	}
 
 	if (val == 0) {
-		getCell(sudoku,i,j) -> error = 0;
+		getCell(sudoku, i, j)->error = 0;
 		return; /* every cell with zero is valid */
 	}
 
 	for (k = 0; k < N; k++) { /* row check */
 		if (val == getCell(sudoku, i, k)->value) {
-			getCell(sudoku,i,k) -> error = 1 - validConfiguration(sudoku,i,k); /* if valid returns 1, error should be 0 */
+			getCell(sudoku, i, k)->error = 1 - validConfiguration(sudoku, i, k); /* if valid returns 1, error should be 0 */
 		}
 	}
 
 	for (l = 0; l < N; l++) { /* column check */
 		if (val == getCell(sudoku, l, j)->value) {
-			getCell(sudoku,l,j) -> error = 1 - validConfiguration(sudoku,l,j);
+			getCell(sudoku, l, j)->error = 1 - validConfiguration(sudoku, l, j);
 		}
 	}
 
@@ -88,7 +87,8 @@ void validNeighbours(SudokuBoard* sudoku, int i, int j, int val) {
 	for (k = blockStartI; k < blockStartI + m; k++) { /* block check */
 		for (l = blockStartJ; l < blockStartJ + n; l++) {
 			if (val == getCell(sudoku, k, l)->value) {
-				getCell(sudoku,k,l) -> error = 1- validConfiguration(sudoku,k,l);
+				getCell(sudoku, k, l)->error = 1
+						- validConfiguration(sudoku, k, l);
 			}
 		}
 	}
@@ -124,8 +124,8 @@ int findNumberOfSolutions(SudokuBoard* sudoku) {
 		return 1;
 	}
 
-	if (!validate(sudoku)){
-		printf("The board has 0 solutions.\n");
+	if (!validate(sudoku)) {
+		printInstructionWithRange(NUM_OF_SOLUTIONS, 0);
 		return 0; /* board is unsolveable */
 	}
 
@@ -200,6 +200,6 @@ int findNumberOfSolutions(SudokuBoard* sudoku) {
 
 	destroyStack(stk);
 	destroyBoard(sudokuCopy);
-	printf("The board has %d solutions.\n", solutionsCount);
+	printInstructionWithRange(NUM_OF_SOLUTIONS, solutionsCount);
 	return solutionsCount;
 }

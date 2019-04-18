@@ -51,7 +51,7 @@ int undo(SudokuBoard* sudoku, List * list) {
 		validNeighbours(sudoku, curr->i, curr->j, curr->oldCellValue);
 		backwards = list->CurrentMove->continueBackwards;
 		list->CurrentMove = list->CurrentMove->prev;
-		printf("Undo: changed cell (%d, %d) from %d to %d.\n", curr->i, curr->j,
+		printf("Undo: changed cell (%d,%d) from %d to %d.\n", curr->i+1, curr->j+1,
 				curr->newCellValue, curr->oldCellValue);
 	} while (backwards == 1 && list->CurrentMove != NULL);
 
@@ -70,7 +70,7 @@ int redo(SudokuBoard* sudoku, List * list) {
 		getCell(sudoku, curr->i, curr->j)->value = curr->newCellValue;
 		validNeighbours(sudoku, curr->i, curr->j, curr->oldCellValue);
 		validNeighbours(sudoku, curr->i, curr->j, curr->newCellValue);
-		printf("Redo: changed cell (%d, %d) from %d to %d.\n", curr->i, curr->j,
+		printf("Redo: changed cell (%d,%d) from %d to %d.\n", curr->i+1, curr->j+1,
 				curr->oldCellValue, curr->newCellValue);
 	} while (list->CurrentMove->continueForward == 1
 			&& list->CurrentMove != NULL);

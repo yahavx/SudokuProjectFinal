@@ -42,14 +42,7 @@ Parameters pop(Stack *stk) {
 	return params;
 }
 
-void emptyStack(Stack *stk) {
-	while (stk->top != NULL) {
-		printf("(%d,%d),%d -> ", top(stk).i, top(stk).j, top(stk).lastUsed);
-		pop(stk);
-	}
 
-	printf("NULL\n");
-}
 
 void destroyStack(Stack *stk) {
 	while (stk->top != NULL) {
@@ -71,4 +64,16 @@ void popAndUpdate(Stack *stk, int *i, int *j, int *lastUsed) {
 
 int isEmpty(Stack *stk) {
 	return stk->top == NULL;
+}
+
+
+/* ======== TEST FUNCTIONS (remove before submitting) ============ */
+
+void emptyStack(Stack *stk) {
+	while (stk->top != NULL) {
+		printf("(%d,%d),%d -> ", top(stk).i, top(stk).j, top(stk).lastUsed);
+		pop(stk);
+	}
+
+	printf("NULL\n");
 }

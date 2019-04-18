@@ -5,29 +5,19 @@
  *      Author: Orin
  */
 
-#include <stdio.h>
+
 #include <stdlib.h>
-#include <time.h>
 #include "LinkedMovesList.h"
 #include "MainAux.h"
 
-Node* createNewNode(int oldCellValue, int newCellValue, int i, int j, int forward, int backward) {
-	Node* newNode = (Node*) malloc(sizeof(Node));
-	assertMalloc((void *)newNode);
-	newNode->oldCellValue = oldCellValue; /*the value in this cell before making the move */
-	newNode->newCellValue = newCellValue;
-	newNode->i = i;
-	newNode->j = j;
-	newNode->continueForward = forward;
-	newNode->continueBackwards = backward;
-	newNode->next = NULL;
-	newNode->prev = NULL;
-	return newNode;
-}
 
-void destroyNode(Node* node) {
-	free(node);
-}
+Node* createNewNode(int oldCellValue, int newCellValue, int i, int j, int forward, int backward);
+
+void destroyFromCurrent(Node* current);
+
+void destroyAllNodes(Node* Head);
+
+/* =============== PUBLIC FUNCTIONS =============== */
 
 List* createNewList() {
 	Node* Head = createNewNode(-1, -1, -1, -1, -1, -1); /* sentinel */
@@ -40,37 +30,6 @@ List* createNewList() {
 	list->CurrentMove = (list->Head);
 	return list;
 
-}
-void destroyAllNodes(Node* head) {
-	if (head != NULL) {
-		destroyAllNodes(head->next);
-		destroyNode(head);
-	}
-}
-
-void resetList(List* L){
-	if (L->Tail == L->Head){ /* list is empty */
-		return;
-	}
-
-	destroyFromCurrent(L->Head);
-	L->Head->next = NULL;
-	L->Tail = L->Head;
-	L->CurrentMove = L->Head;
-
-}
-
-void destroyFromCurrent(Node* current) {
-	destroyAllNodes(current->next);
-}
-
-void destroyList(List* L) {
-	if (L == NULL) {
-		printf("Warning! tried to destroy an uninitialized list.\n");
-		return;
-	}
-	destroyAllNodes(L->Head);
-	free(L);
 }
 
 void addNewMove(List* l, int oldValue, int z, int i, int j, int forward, int backward) {
@@ -89,6 +48,69 @@ void addNewMove(List* l, int oldValue, int z, int i, int j, int forward, int bac
 		l->Tail = move;
 	}
 }
+
+void resetList(List* L){
+	if (L->Tail == L->Head){ /* list is empty */
+		return;
+	}
+
+	destroyFromCurrent(L->Head);
+	L->Head->next = NULL;
+	L->Tail = L->Head;
+	L->CurrentMove = L->Head;
+
+}
+
+void destroyList(List* L) {
+	if (L == NULL) {
+		printf("Warning! tried to destroy an uninitialized list.\n");
+		return;
+	}
+	destroyAllNodes(L->Head);
+	free(L);
+}
+
+
+/* =============== PRIVATE FUNCTIONS =============== */
+
+/*
+ * Creates a new Node.
+ */
+Node* createNewNode(int oldCellValue, int newCellValue, int i, int j, int forward, int backward) {
+	Node* newNode = (Node*) malloc(sizeof(Node));
+	assertMalloc((void *)newNode);
+	newNode->oldCellValue = oldCellValue; /*the value in this cell before making the move */
+	newNode->newCellValue = newCellValue;
+	newNode->i = i;
+	newNode->j = j;
+	newNode->continueForward = forward;
+	newNode->continueBackwards = backward;
+	newNode->next = NULL;
+	newNode->prev = NULL;
+	return newNode;
+}
+
+/*
+ * This function destroy recursively all the nodes in a list, assuming
+ * Head is the head of the list.
+ */
+void destroyAllNodes(Node* head) {
+	if (head != NULL) {
+		destroyAllNodes(head->next);
+		free(head);
+	}
+}
+
+/*
+ * Destroy all nodes from the current node to the end (excluding)
+ */
+void destroyFromCurrent(Node* current) {
+	destroyAllNodes(current->next);
+}
+
+
+
+/* ======== TEST FUNCTIONS (remove before submitting) ============ */
 
 void printNode(Node* n) {
 	printf("index: (%d,%d)", n->i, n->j);

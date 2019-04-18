@@ -56,7 +56,8 @@ typedef enum {
 	WELCOME,
 	EXITING,
 	ENTER_COMMAND,
-	GAME_SAVED
+	GAME_SAVED,
+	NUM_OF_SOLUTIONS
 } Instruction;
 
 typedef enum {
@@ -137,6 +138,12 @@ void printFormatWithRange(CommandType command, int range);
  * @param command - command type.
  */
 void printFormat(CommandType command);
+
+/*
+ * Hints the user.
+ * @param num - a parameter relevant to the message.
+ */
+void printInstructionWithRange(Instruction instType, int num);
 
 /*
  * Hints the user.

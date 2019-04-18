@@ -51,7 +51,7 @@ int main() {
 
 			if (loaded) { /* Load was successful */
 				mode = SOLVE;
-				destroyFromCurrent(movesList->Head); /* clear moves list */
+				resetList(movesList); /* clear moves list */
 				print = 1;
 			}
 

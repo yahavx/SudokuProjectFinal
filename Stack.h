@@ -12,13 +12,19 @@
 #include <stdlib.h>
 #include <time.h>
 
+/*
+ * This struct represents the list of parameters needed for a recursive call,
+ * in order to find number of solutions to a board (i.e. supports exhaustive backtracking).
+ */
+
 typedef struct{
 	int i;
 	int j;
 	int lastUsed;
 } Parameters;
 
-/* This struct represents the list of parameters needed for a recursive call, to find number of solutions to a board.
+/*
+ * This struct represents a Stack Node.
  */
 
 typedef struct stackNode{
@@ -26,38 +32,37 @@ typedef struct stackNode{
 	struct stackNode *next;
 } StackNode;
 
-/* This struct represents a StackNode (for a recursive call).
- * Currently supports int only.
+/*
+ * This struct represent a stack.
  */
 
 typedef struct {
 	StackNode *top;
 } Stack;
 
-/*
- * This struct represent a stack
- */
+
 
 /*
- *  Push param to the stack.
- */
-void push(int i, int j, int lastUsed, Stack *stk);
-
-/*
- * Initialize an empty stack.
+ * Initializes an empty stack.
  */
 Stack* initialize();
 
 /*
- * Removes the head from the stack.
+ * Pushes a Parameters object (created from function parameters) to the stack.
+ */
+void push(int i, int j, int lastUsed, Stack *stk);
+
+/*
+ * Removes the top from the stack.
  * @pre - stack is not empty.
  */
 Parameters pop(Stack *stk);
 
 /*
- * Prints all elements (and removes them). for test only
+ * Removes the top from the stack, inserts it's fields to the references of i, j, lastUsed.
+ * @pre - stack is not empty.
  */
-void emptyStack(Stack *stk);
+void popAndUpdate(Stack *stk, int *i, int *j, int *lastUsed);
 
 /*
  * Returns the element at the top of the stack.
@@ -66,7 +71,7 @@ void emptyStack(Stack *stk);
 Parameters top(Stack *stk);
 
 /*
- * Removes stack and all it's elements, free all memory resources.
+ * Removes stack and all it's elements, frees all memory resources.
  */
 void destroyStack(Stack *stk);
 
@@ -75,9 +80,9 @@ void destroyStack(Stack *stk);
  */
 int isEmpty(Stack *stk);
 
-/*
- * Removes the head from the stack, inserts it's fields to i, j, lastUsed.
- */
-void popAndUpdate(Stack *stk, int *i, int *j, int *lastUsed);
+
+/* ======== TEST FUNCTIONS (remove before submitting) ============ */
+
+void emptyStack(Stack *stk); /* prints and removes all elements in stack */
 
 #endif /* STACK_H_ */

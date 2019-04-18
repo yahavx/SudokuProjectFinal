@@ -17,6 +17,8 @@
 
 int isValidBoardFormat(FILE* input);
 
+/* =============== PUBLIC FUNCTIONS =============== */
+
 SudokuBoard* load(SudokuBoard *sudoku, char *fileName, int *success) {
 	int i, j, N, num;
 	char n[2], m[2];
@@ -119,7 +121,7 @@ void save(SudokuBoard *sudoku, char *fileName, Status mode) {
 	printInstruction(GAME_SAVED);
 }
 
-/* =========== Auxilary functions =========== */
+/* =============== PRIVATE FUNCTIONS =============== */
 
 /*
  * Returns the length of the longest word in the file, starting to read from where the pointer is.

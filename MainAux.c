@@ -193,6 +193,12 @@ void printFormatWithRange(CommandType command, int range) {
 	}
 }
 
+void printInstructionWithRange(Instruction instType, int num){
+	if (instType == NUM_OF_SOLUTIONS){
+		printf("The board has %d solutions.\n", num);
+	}
+}
+
 void printInstruction(Instruction instType) {
 
 	if (instType == WELCOME) {

@@ -107,7 +107,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	if (c[1] == '\n') { /*handaling the case of command which is shorter than 2 chars but not empty command */
 		if (c[0] != ' ' && c[0] != '\t' && c[0] != '\n' && c[0] != '\v'
 				&& c[0] != '\f' && c[0] != 'r') {
-			printf("Unknown Command, try again.\n");
+			printError(INVALID_COMMAND);
 			cmdToReturn = createCommand(params, path, UNKNOWN_COMMAND, 0);
 			return cmdToReturn;
 		}
