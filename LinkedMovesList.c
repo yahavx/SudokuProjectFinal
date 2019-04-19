@@ -62,10 +62,6 @@ void resetList(List* L){
 }
 
 void destroyList(List* L) {
-	if (L == NULL) {
-		printf("Warning! tried to destroy an uninitialized list.\n");
-		return;
-	}
 	destroyAllNodes(L->Head);
 	free(L);
 }
@@ -79,7 +75,7 @@ void destroyList(List* L) {
 Node* createNewNode(int oldCellValue, int newCellValue, int i, int j, int forward, int backward) {
 	Node* newNode = (Node*) malloc(sizeof(Node));
 	assertMalloc((void *)newNode);
-	newNode->oldCellValue = oldCellValue; /*the value in this cell before making the move */
+	newNode->oldCellValue = oldCellValue;
 	newNode->newCellValue = newCellValue;
 	newNode->i = i;
 	newNode->j = j;

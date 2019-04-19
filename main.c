@@ -24,11 +24,10 @@ int main() {
 	int markErrorsVar = 1, temp, print = 0, exit = 0;
 	List *movesList = createNewList();
 	int loaded;
+	SP_BUFF_SET()
 
 	/*destroyList(movesList);
 	test();*/
-
-	SP_BUFF_SET()
 
 	printInstruction(WELCOME);
 
@@ -103,7 +102,7 @@ int main() {
 			break;
 
 		case GUESS:
-			print = guess(sudoku, c->threshold);
+			print = guess(sudoku, c->threshold, movesList);
 			break;
 
 		case GENERATE:

@@ -10,4 +10,10 @@
 
 int test();
 
+typedef struct yosi Y;
+
+Y* createY();
+
+void getY(Y *bla);
+
 #endif /* TEST_H_ */

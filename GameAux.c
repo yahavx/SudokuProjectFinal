@@ -9,13 +9,13 @@
 #include "Solver.h"
 
 Cell* getCell(SudokuBoard *sudoku, int i, int j) {
-	int N = sudoku -> n * sudoku -> m;
+	int N = sudoku->n * sudoku->m;
 	return &(sudoku->board[i * N + j]);
 }
 
 int isSingleLegalValue(SudokuBoard *sudoku, int i, int j) {
 	int k, N = sudoku->n * sudoku->m;
-	int found = 0, legalNum;
+	int found = 0, legalNum = 0;
 
 	for (k = 1; k <= N; k++) {
 		getCell(sudoku, i, j)->value = k;
@@ -64,39 +64,35 @@ void markErroneousCells(SudokuBoard *sudoku) {
 
 	for (i = 0; i < N; i++) {
 		for (j = 0; j < N; j++) {
-			if (validConfiguration(sudoku, i, j)) {
-				getCell(sudoku, i, j)->error = 0;
-			} else {
-				getCell(sudoku, i, j)->error = 1;
-			}
+			getCell(sudoku, i, j)->error = !validConfiguration(sudoku, i, j); /* If validConfiguration is 0, error should be 1. */
 		}
 	}
 }
 
-int isSolved(SudokuBoard *sudoku){
+int isSolved(SudokuBoard *sudoku) {
 	int i, j, N = sudoku->n * sudoku->m;
 
-	for (i = 0; i < N; i++){
-		for (j = 0; j < N; j++){
-			if (getCell(sudoku,i,j)->value == 0){
+	for (i = 0; i < N; i++) {
+		for (j = 0; j < N; j++) {
+			if (getCell(sudoku, i, j)->value == 0) {
 				return 0;
 			}
 		}
 	}
 
-	if (isErroneous(sudoku)){
+	if (isErroneous(sudoku)) {
 		return 0;
 	}
 
 	return 1;
 }
 
-int isFull(SudokuBoard *sudoku){
+int isFull(SudokuBoard *sudoku) {
 	int i, j, N = sudoku->n * sudoku->m;
 
-	for (i = 0; i < N; i++){
-		for (j = 0; j < N; j++){
-			if (getCell(sudoku,i,j)->value == 0){
+	for (i = 0; i < N; i++) {
+		for (j = 0; j < N; j++) {
+			if (getCell(sudoku, i, j)->value == 0) {
 				return 0;
 			}
 		}

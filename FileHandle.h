@@ -1,9 +1,6 @@
 /*
  * FileHandle.h:
  * This module contains functions that support loading and saving a board, i.e. solve, edit, save.
- *
- *  Created on: 16 באפר׳ 2019
- *      Author: yahav
  */
 
 #ifndef FILEHANDLE_H_

@@ -1,8 +1,7 @@
 /*
  * LinkedMovesList.h
- * This module implements a doubly-linked list, used in order to perform board
- * operations undo, redo and reset.
- * Also used to
+ * This module implements a doubly-linked list.
+ * Used in order to perform board operations: undo, redo and reset.
  */
 
 #ifndef LINKEDMOVESLIST_H_
@@ -14,7 +13,6 @@
  * was performed on the relveant move (for autofill and generate), i.e. the move is part of
  * a sequence of moves that belong to the same redo/undo operation.  Same for continueBackward.
  */
-
 typedef struct node {
 	int oldCellValue;
 	int newCellValue;
@@ -22,8 +20,8 @@ typedef struct node {
 	int j;
 	int continueForward;
 	int continueBackwards;
-	struct node* next;
-	struct node* prev;
+	struct node *next;
+	struct node *prev;
 } Node;
 
 /*
@@ -31,11 +29,10 @@ typedef struct node {
  * Head and Tail represent the first and last moves added to the list respectively.
  * CurrentMove is the move that should be called first on the next redo/undo/reset operation.
  */
-
 typedef struct {
-	Node * Head;
-	Node * Tail;
-	Node * CurrentMove;
+	Node *Head;
+	Node *Tail;
+	Node *CurrentMove;
 } List;
 
 /*

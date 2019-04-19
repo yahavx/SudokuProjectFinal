@@ -118,10 +118,11 @@ int autofill(SudokuBoard* sudoku, List *l) {
 			legalVal = isSingleLegalValue(sudokuCopy, i, j);
 
 			if (legalVal != 0) {
+				printf("Autofill: cell (%d,%d) set to %d.\n",i,j,legalVal);
 				oldValue = getCell(sudoku, i, j)->value;
 				newValue = legalVal;
 				if (first) {
-					addNewMove(l, oldValue, newValue, i, j, 1, 0); /* continue backwards of the first is 0 */
+					addNewMove(l, oldValue, newValue, i, j, 1, 0); /* Continue backwards of the first is 0 */
 					first = 0;
 				} else
 					addNewMove(l, oldValue, newValue, i, j, 1, 1);
@@ -130,7 +131,8 @@ int autofill(SudokuBoard* sudoku, List *l) {
 
 		}
 	}
-	l->CurrentMove->continueForward = 0; /* continue forward of the last is 0 */
+	l->CurrentMove->continueForward = 0; /* Continue forward of the last is 0 */
+	markErroneousCells(sudoku);
 	destroyBoard(sudokuCopy);
 	return 1;
 }
