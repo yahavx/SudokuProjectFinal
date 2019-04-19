@@ -286,11 +286,11 @@ void printErrorWithRange(Error errorType, int start, int end) {
 	}
 
 	if (errorType == MARK_ERRORS_INVALID_VALUE){
-		printf("invalid value for the parameter, should be 0 or 1.\n");
+		printf("invalid value for the command's parameter, should be 0 or 1.\n");
 	}
 
 	if (errorType == GUESS_INVALID_VALUE){
-		printf("invalid value for the parameter, should be a float between 0 to 1.\n");
+		printf("invalid value for the command's parameter, should be a float between 0 to 1.\n");
 	}
 
 	/* Errors releated to invalid input */
@@ -328,7 +328,7 @@ void printErrorWithRange(Error errorType, int start, int end) {
 	}
 
 	if (errorType == FGET_FAILED) {
-		printf("fgets has failed.\n");
+		printf("fgets has failed. Terminating the program...\n");
 	}
 
 	if (errorType == MALLOC_FAILED) {

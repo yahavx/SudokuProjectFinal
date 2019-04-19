@@ -132,7 +132,7 @@ CommandType checkEditCommand(char* stream, char* path) {
 
 int checkMarkErrorsCommand(char* stream, Status mode, int params[3]) {
 
-	int cnt, wrong_value_for_x;
+	int cnt, wrong_value_for_x, num;
 	wrong_value_for_x = 0;
 
 	if (mode != SOLVE) {
@@ -145,11 +145,11 @@ int checkMarkErrorsCommand(char* stream, Status mode, int params[3]) {
 		printFormat(MARK_ERRORS);
 		return 0;
 	}
-
-	if (!(strcmp(stream, "0") == 0 || strcmp(stream, "1") == 0)) {
+	num= getNum(stream);
+	if (!(num == 0 || num == 1)) {
 		wrong_value_for_x = 1;
 	} else {
-		params[0] = atoi(stream);
+		params[0] = num;
 	}
 
 	cnt = numOfArguments(stream);

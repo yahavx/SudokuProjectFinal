@@ -117,7 +117,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	assertFget();
 
 	strcat(c, str);
-	if (strlen(c) > MAX_COMMAND_LENGTH) { /* command contains more than 256 characters */
+	if ((strlen(c) > MAX_COMMAND_LENGTH)&&(c[256]!='\0' && c[256]!='\n')) { /* command contains more than 256 characters */
 
 		if (c[256] != '\0' && c[256] != '\n' && c[256] != EOF) {
 			finishTheLine(); /* read until the end of the command*/
