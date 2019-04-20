@@ -18,8 +18,8 @@
 #include "ParserAux.h"
 #include "string.h"
 #include <ctype.h>
-#include "Gurobi.h"
 #include "FileHandle.h"
+#include "LPSolver.h"
 #include "StandardLinkedList.h"
 
 void stackTest() {

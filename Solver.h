@@ -13,7 +13,11 @@
 /*
  * Checks whether the current configuration of the board is valid - with respect to index (i,j).
  */
-int validConfiguration2(SudokuBoard *sudoku, int i, int j);
+int validConfiguration(SudokuBoard *sudoku, int i, int j);
+
+/* Check if neighbours of (i,j) with value v are erroneous.
+ * Mark them accordingly. */
+void validNeighbours(SudokuBoard* sudoku, int i, int j, int val);
 
 /*
  * Increment the index (i,j), and returns the i of the new index.
@@ -42,11 +46,5 @@ int findDeterministicSolutionStack(SudokuBoard* sudoku);
  * Returns the number of solutions to the board, -1 if the board is erroneous.
  */
 int findNumberOfSolutions(SudokuBoard* sudoku);
-
-/* testing */
-int validConfiguration(SudokuBoard* sudoku, int i, int j);
-
-/* Check if neighbours of (i,j) with value v are erroneous, and mark them accordingly. */
-void validNeighbours(SudokuBoard* sudoku, int i, int j, int val);
 
 #endif /* SOLVER_H_ */

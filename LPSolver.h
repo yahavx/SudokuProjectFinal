@@ -1,15 +1,20 @@
 /*
- * Gurobi.h:
+ * LPSolver.h:
+ * This module is used to solve a sudoku board with LP or with ILP.
  *
+ * It supplies an interface that allows the user to receive the assignment received for
+ * each variable through the LP, as well as information to which (i,j,v)'s weren't assigned
+ * a variable (where i is a row index, j is a column index, and v is a value),
+ * and why (cell contained a value before, or v is illegal for the cell).
  */
 
-#ifndef GUROBI_H_
-#define GUROBI_H_
+#ifndef LPSOLVER_H_
+#define LPSOLVER_H_
 
 #include "StandardLinkedList.h"
 
 /*
- * LPSolution is used to hold a solution received from the LP solver.
+ * LPSolution is used to hold the information received from the LP solver.
  * It should be able to store and return the assignment for each variable.
  
  * Also, for each cell (i,j) with value v which wasn't assigned a variable, it
@@ -21,41 +26,30 @@
 typedef struct _LPSolution LPSolution;
 
 /*
- * Get the index of the variable representing index (i,j) in the board
- * with respect to value v.
- * If (i,j,v) doesn't have a variable:
- * - If cell (i,j) already contains a value, returns -1.
- * - If cell (i,j) with value v is illegal in respect to the board, returns -2.
+ * Solves the board using linear programming. Returns a LPSolution struct with the solution information.
+ * @param integerSolution - determines whether the solver will use LP (0) or ILP (1).
  */
-int getVariableIndex(LPSolution *boardSol, int i, int j, int v);
+LPSolution* getLPSolution(SudokuBoard *sudoku, int integerSolution);
 
 /*
- * Returns the assignment of cell (i,j) with value v, received via LP.
- * @pre - boardSol is filled with information through LPSolver (i.e. passed as
- * a parameter to the function).
+ * Returns the assignment of cell (i,j) with value v (i.e. variable (i,j,v)), received via LP.
  * If (i,j,v) doesn't have a variable:
- * - If cell (i,j) already contains a value, returns -1.
- * - If cell (i,j) with value v is illegal in respect to the board, returns -2.
+ * - If it's because cell (i,j) already contains a value, returns -1.
+ * - If it's because value v is illegal for cell (i,j), in respect to current board state, returns -2.
  */
 double getVariableAssignment(LPSolution *boardSol, int i, int j, int v);
 
 /*
- * Solves the board using linear programming. Returns a LPSolution struct with the solution information.
- * @param integerSolution - determines whether the solver will use LP (0) or ILP (1).
+ * Returns 1 if the board is solveable, 0 if unsolveable, and -1 if LP solver encountered an error.
  */
-LPSolution* LPSolver(SudokuBoard *sudoku, int integerSolution);
+int getSolutionStatus(LPSolution *boardSol);
 
 /*
  * Destroys boardSol and free it's memory resources.
  */
 void destroyLPSolution(LPSolution *boardSol);
 
-/*
- * Returns 1 if the board is solveable, 0 if unsolveable, and -1 if LP solver encountered an error.
- * @pre - boardSol is filled with information through LPSolver (i.e. passed as
- * a parameter to the function).
- */
-int getSolutionStatus(LPSolution *boardSol);
+
 
 /* ================== MOVE TO OTHER MODULES ================== */
 
@@ -103,7 +97,7 @@ StandardList **getLists(LPSolution *boardSol);
 /* =============== PRIVATE FUNCTIONS =============== */
 
 void addVariable(LPSolution *boardSol, int i, int j, int v, int index);
-
+int getVariableIndex(LPSolution *boardSol, int i, int j, int v);
 void getSolution(SudokuBoard *sudoku);
 
 #endif /* GUROBI_H */

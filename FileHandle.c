@@ -13,7 +13,7 @@
 #include "MainAux.h"
 #include "ParserAux.h"
 #include "GameAux.h"
-#include "Gurobi.h"
+#include "LPSolver.h"
 
 int isValidBoardFormat(FILE* input);
 
@@ -79,7 +79,7 @@ SudokuBoard* load(SudokuBoard *sudoku, char *fileName, int *success) {
 }
 
 void save(SudokuBoard *sudoku, char *fileName, Status mode) {
-	int i, j, n, m, N;
+	int i, j, n, m, c, N;
 	FILE *output;
 
 	if (mode == EDIT) {
@@ -87,8 +87,13 @@ void save(SudokuBoard *sudoku, char *fileName, Status mode) {
 			printError(ERRONEOUS_BOARD);
 			return;
 		}
-		if (!validate(sudoku)) {
-			printError(UNSOLVEABLE_BOARD);
+		if ((c = validate(sudoku)) != 1) {
+			if (c == 0) {
+				printError(UNSOLVEABLE_BOARD);
+			}
+			if (c == -1) {
+				printf("Unable to verify board. Saving failed.\n");
+			}
 			return;
 		}
 	}
@@ -116,7 +121,7 @@ void save(SudokuBoard *sudoku, char *fileName, Status mode) {
 			}
 		}
 	}
-	fprintf(output,"\n");
+	fprintf(output, "\n");
 	fclose(output);
 	printInstruction(GAME_SAVED);
 }

@@ -113,6 +113,13 @@ void printSeperator(int length);
 void initCell(Cell *c, int data);
 
 /*
+ * Informs the user about a cell value update.
+ * @params: i - row index, j - column index (0 based), oldVal - old cell, newVal - newly assigned value.
+ * @pre - command is AUTOFILL, GUESS, REDO, UNDO (i.e. commands that change cells without the user implicitly choosing them).
+ */
+void printCellUpdate(CommandType command, int i, int j, int oldVal, int newVal);
+
+/*
  * Prints an error message.
  * @param errorType - error type.
  * @param range - a valid range for a parameter.

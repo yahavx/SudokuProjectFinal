@@ -103,6 +103,18 @@ void printBoard3(SudokuBoard *sudoku) {
 	printBoard(sudoku, SOLVE, 1);
 }
 
+void printCellUpdate(CommandType command, int i, int j, int oldVal, int newVal){
+	i++;
+	j++; /* Change indices to be 1-based */
+
+	if (command == AUTOFILL){
+		printf("Autofill: cell (%d,%d) set to %d.\n",i,j,newVal);
+	}
+
+	if (command == GUESS){
+		printf("Guess: cell (%d,%d) set to %d.\n",i,j,oldVal);
+	}
+}
 
 void printFormat(CommandType command){
 	printFormatWithRange(command, 0);

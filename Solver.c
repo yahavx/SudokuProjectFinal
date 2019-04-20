@@ -9,7 +9,7 @@
 #include "Stack.h"
 #include "GameAux.h"
 #include "Game.h"
-#include "Gurobi.h"
+#include "LPSolver.h"
 
 int validConfiguration(SudokuBoard* sudoku, int i, int j) {
 	int k, l, N, val, n, m, blockStartI, blockStartJ;
@@ -69,7 +69,7 @@ void validNeighbours(SudokuBoard* sudoku, int i, int j, int val) {
 
 	for (k = 0; k < N; k++) { /* row check */
 		if (val == getCell(sudoku, i, k)->value) {
-			getCell(sudoku, i, k)->error = 1 - validConfiguration(sudoku, i, k); /* if valid returns 1, error should be 0 */
+			getCell(sudoku, i, k)->error = 1 - validConfiguration(sudoku, i, k); /* If valid, error should be 0 */
 		}
 	}
 
@@ -108,7 +108,7 @@ int nextJ(int j, int N) {
 }
 
 int findNumberOfSolutions(SudokuBoard* sudoku) {
-	int i, j, lastUsed = 0, N, solutionsCount = 0, backtrack = 0;
+	int i, j, lastUsed = 0, N, solutionsCount = 0, backtrack = 0, c;
 	SudokuBoard *sudokuCopy;
 	Stack *stk;
 
@@ -124,9 +124,11 @@ int findNumberOfSolutions(SudokuBoard* sudoku) {
 		return 1;
 	}
 
-	if (!validate(sudoku)) {
-		printInstructionWithRange(NUM_OF_SOLUTIONS, 0);
-		return 0; /* board is unsolveable */
+	if ((c = validate(sudoku)) != 1) {
+		if (c == -1) { /* LP failed */
+			return -1;
+		}
+		return 0; /* Board is unsolveable */
 	}
 
 	stk = initialize();
@@ -200,6 +202,5 @@ int findNumberOfSolutions(SudokuBoard* sudoku) {
 
 	destroyStack(stk);
 	destroyBoard(sudokuCopy);
-	printInstructionWithRange(NUM_OF_SOLUTIONS, solutionsCount);
 	return solutionsCount;
 }

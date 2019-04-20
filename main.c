@@ -14,8 +14,8 @@
 #include "Solver.h"
 #include "test.h"
 #include "SPBufferset.h"
-#include "Gurobi.h"
 #include "FileHandle.h"
+#include "LPSolver.h"
 
 int main() {
 	SudokuBoard *sudoku = NULL;
@@ -130,7 +130,10 @@ int main() {
 			break;
 
 		case NUM_SOLUTIONS:
-			findNumberOfSolutions(sudoku);
+			temp = findNumberOfSolutions(sudoku);
+			if (temp != -1) /* An error occured */{
+				printInstructionWithRange(NUM_OF_SOLUTIONS, temp);
+			}
 			break;
 
 		case AUTOFILL:

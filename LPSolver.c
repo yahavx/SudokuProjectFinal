@@ -1,6 +1,5 @@
 /* Copyright 2013, Gurobi Optimization, Inc. */
 
-
 /* This example formulates and solves the following simple sudoku model:
 
  maximize    x + 3 y + 2 z
@@ -17,48 +16,25 @@
 #include "MainAux.h"
 #include "StandardLinkedList.h"
 
-int gurobi(SudokuBoard *sudoku, int *indices, double *sol, int integerSolution){
-	return 0;
-	printf("%d %d %d %d", getCell(sudoku,0,0)->value, *indices, (int)*sol, integerSolution);
-}
-
-void hint(SudokuBoard *sudoku, int i, int j){
-	return;
-	printf("%d %d %d", getCell(sudoku,0,0)->value, i, j);
-}
-
-void guessHint(SudokuBoard *sudoku, int i, int j){
-	return;
-	printf("%d %d %d", getCell(sudoku,0,0)->value, i, j);
-}
-
-int validate(SudokuBoard *sudoku){
-	return 0;
-	printf("%d", getCell(sudoku,0,0)->value);
-}
-
-int getSolution(SudokuBoard *sudoku){
-	return 0;
-	printf("%d", getCell(sudoku,0,0)->value);
-}
-
-int guess(SudokuBoard *sudoku, double threshold, List *l){
-	return 0;
-	printf("%d %d %p", getCell(sudoku,0,0)->value, (int)threshold, (void*)l);
-}
-
-void generate(SudokuBoard *sudoku, int X, int Y, List *l){
-	return;
-	printf("%d %d %d %d", getCell(sudoku,0,0)->value, X, Y, l->CurrentMove->i);
-}
-
-
 typedef struct {
 	int N;
 	StandardList **mapping;
 	double *sol;
 	int foundSolution;
 } LPSolution;
+
+LPSolution* getLPSolution(SudokuBoard *sudoku, int integerSolution) {
+	LPSolution *sol = malloc(100);
+	return sol;
+	printf("%d %d", getCell(sudoku, 0, 0)->value, integerSolution);
+}
+
+int getSolutionStatus(LPSolution *boardSol){
+	return 0;
+	printf("%d",boardSol->N);
+}
+
+
 
 void destroyLPSolution(LPSolution *boardSol) {
 	int i, j, N = boardSol->N;
@@ -77,6 +53,35 @@ void destroyLPSolution(LPSolution *boardSol) {
 		free(boardSol->sol);
 	}
 	free(boardSol);
+}
+
+
+/* ================================ */
+void hint(SudokuBoard *sudoku, int i, int j) {
+	return;
+	printf("%d %d %d", getCell(sudoku, 0, 0)->value, i, j);
+}
+
+void guessHint(SudokuBoard *sudoku, int i, int j) {
+	return;
+	printf("%d %d %d", getCell(sudoku, 0, 0)->value, i, j);
+}
+
+int getSolution(SudokuBoard *sudoku) {
+	return 0;
+	printf("%d", getCell(sudoku, 0, 0)->value);
+}
+
+int guess(SudokuBoard *sudoku, double threshold, List *l) {
+	return 0;
+	printf("%d %d %p", getCell(sudoku, 0, 0)->value, (int) threshold,
+			(void*) l);
+}
+
+void generate(SudokuBoard *sudoku, int X, int Y, List *l) {
+	return;
+	printf("%d %d %d %d", getCell(sudoku, 0, 0)->value, X, Y,
+			l->CurrentMove->i);
 }
 
 int getVariableIndex(LPSolution *boardSol, int i, int j, int v) {
@@ -121,10 +126,10 @@ LPSolution* initializeLPSolution(int N) {
 	return boardSol;
 }
 
-int getN(LPSolution *boardSol){
-	return boardSol -> N;
+int getN(LPSolution *boardSol) {
+	return boardSol->N;
 }
 
-StandardList **getLists(LPSolution *boardSol){
+StandardList **getLists(LPSolution *boardSol) {
 	return boardSol->mapping;
 }

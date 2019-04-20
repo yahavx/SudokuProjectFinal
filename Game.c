@@ -14,7 +14,7 @@
 #include "GameAux.h"
 #include "test.h"
 #include "unistd.h"
-#include "Gurobi.h"
+#include "LPSolver.h"
 
 /* =============== PUBLIC FUNCTIONS =============== */
 
@@ -33,7 +33,7 @@ int set(SudokuBoard* sudoku, int i, int j, int z, Status mode, List* list) {
 	c->value = z;
 
 	validNeighbours(sudoku, i, j, oldValue);
-	validNeighbours(sudoku, i, j, z);
+	validNeighbours(sudoku, i, j, z); /* Update neighbours error status */
 
 	return 1;
 }
@@ -50,7 +50,7 @@ int undo(SudokuBoard* sudoku, List * list) {
 				list->CurrentMove->oldCellValue;
 		curr = list->CurrentMove;
 		validNeighbours(sudoku, curr->i, curr->j, curr->newCellValue);
-		validNeighbours(sudoku, curr->i, curr->j, curr->oldCellValue);
+		validNeighbours(sudoku, curr->i, curr->j, curr->oldCellValue); /* Update neighbours error status */
 		backwards = list->CurrentMove->continueBackwards;
 		list->CurrentMove = list->CurrentMove->prev;
 		printf("Undo: changed cell (%d,%d) from %d to %d.\n", curr->i+1, curr->j+1,
@@ -96,6 +96,22 @@ int reset(SudokuBoard* sudoku, List * list) {
 	return 1;
 }
 
+
+int validate(SudokuBoard *sudoku) {
+	LPSolution *boardSol;
+	int status;
+	if (isErroneous(sudoku)) {
+		printError(ERRONEOUS_BOARD);
+		return -1;
+	}
+
+	boardSol = getLPSolution(sudoku, 1);
+	status = getSolutionStatus(boardSol);
+	destroyLPSolution(boardSol);
+	return status;
+}
+
+
 int autofill(SudokuBoard* sudoku, List *l) {
 	int i, j, oldValue, newValue, first = 1, legalVal, N = sudoku->n
 			* sudoku->m;
@@ -118,7 +134,7 @@ int autofill(SudokuBoard* sudoku, List *l) {
 			legalVal = isSingleLegalValue(sudokuCopy, i, j);
 
 			if (legalVal != 0) {
-				printf("Autofill: cell (%d,%d) set to %d.\n",i,j,legalVal);
+				printf("Autofill: cell (%d,%d) set to %d.\n",i+1,j+1,legalVal);
 				oldValue = getCell(sudoku, i, j)->value;
 				newValue = legalVal;
 				if (first) {
