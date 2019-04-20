@@ -15,8 +15,10 @@
  */
 int validConfiguration(SudokuBoard *sudoku, int i, int j);
 
-/* Check if neighbours of (i,j) with value v are erroneous.
- * Mark them accordingly. */
+/*
+ * Check if neighbours of (i,j) with value v are erroneous.
+ * Mark them accordingly.
+ */
 void validNeighbours(SudokuBoard* sudoku, int i, int j, int val);
 
 /*
@@ -27,24 +29,19 @@ int nextI(int i, int j, int N);
 
 /*
  * Increment the index (*,j), and returns the j of the new index.
- * notice it does not depend on the row index.
  * @param N - board dimension.
  */
 int nextJ(int j, int N);
 
 /*
- * Find deterministic solution to the board. Returns 1 iff found a solution.
- */
-int findDeterministicSolutionRec(SudokuBoard *sudoku, int i, int j);
-
-/*
- * Find deterministic solution to the board. Returns 1 iff found a solution.
- */
-int findDeterministicSolutionStack(SudokuBoard* sudoku);
-
-/*
  * Returns the number of solutions to the board, -1 if the board is erroneous.
  */
 int findNumberOfSolutions(SudokuBoard* sudoku);
+
+/*
+ * Assigns a solution found via LP to the board.
+ * @pre - board is solveable.
+ */
+void getSolution(SudokuBoard *sudoku);
 
 #endif /* SOLVER_H_ */

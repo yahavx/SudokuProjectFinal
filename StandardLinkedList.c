@@ -1,8 +1,6 @@
 /*
- * StandardLinkedList.c
- *
- *  Created on: 18 באפר׳ 2019
- *      Author: yahav
+ * StandardLinkedList.c:
+ * This moudle implements StandardLinkedList.h.
  */
 
 #include "StandardLinkedList.h"

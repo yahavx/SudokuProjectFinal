@@ -204,3 +204,35 @@ int findNumberOfSolutions(SudokuBoard* sudoku) {
 	destroyBoard(sudokuCopy);
 	return solutionsCount;
 }
+
+
+void getSolution(SudokuBoard *sudoku) {
+	int i, j, v, N = sudoku->n * sudoku->m;
+	LPSolution *boardSol;
+
+	boardSol = getLPSolution(sudoku, 1);
+
+	switch (getSolutionStatus(boardSol)) {
+	case -1:
+		printError(GUROBI_FAILED);
+		break;
+	case 0:
+		printf("Error in generate.\n"); /* Shouldn't reach this line */
+		break;
+
+	case 1:
+		for (v = 1; v <= N; v++) {
+			for (i = 0; i < N; i++) {
+				for (j = 0; j < N; j++) {
+					if (getVariableAssignment(boardSol, i, j, v) == 1.0) {
+						getCell(sudoku, i, j)->value = v;
+						break; /* Found a value, continue to next cell */
+					}
+				}
+			}
+		}
+		break;
+	}
+
+	destroyLPSolution(boardSol);
+}

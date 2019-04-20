@@ -17,7 +17,7 @@ Solver.o: Solver.c MainAux.h Game.h Stack.h GameAux.h
 	$(CC) $(COMP_FLAG) -c $*.c
 Parser.o: Parser.c MainAux.h Game.h Parser.h ParserAux.h LinkedMovesList.h
 	$(CC) $(COMP_FLAG) -c $*.c
-GameAux.o: GameAux.c Game.h Solver.h
+GameAux.o: GameAux.c Game.h Solver.h LPSolver.h
 	$(CC) $(COMP_FLAG) -c $*.c
 LinkedMovesList.o: LinkedMovesList.c LinkedMovesList.h MainAux.h
 	$(CC) $(COMP_FLAG) -c $*.c

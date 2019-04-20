@@ -180,8 +180,8 @@ int isValidCellFormat(char* word, int N) {
 	if (x >= 0 && x <= N) {
 		return 1;
 	}
-	/*printf("number not in range\n");*/
-	return 0; /* number is not in range */
+
+	return 0;
 }
 
 /*
