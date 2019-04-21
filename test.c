@@ -274,7 +274,7 @@ void stackBacktrackTest() {
 	getCell(sudoku, 0, 0)->value = 2;
 	getCell(sudoku, 5, 5)->fixed = 1;
 	getCell(sudoku, 5, 5)->value = 2;
-	printBoard3(sudoku);
+	printBoard(sudoku, SOLVE, 1);
 
 	sudoku = initializeBoard(2, 3);
 	getCell(sudoku, 0, 0)->fixed = 1;
@@ -282,7 +282,7 @@ void stackBacktrackTest() {
 	getCell(sudoku, 5, 5)->fixed = 1;
 	getCell(sudoku, 5, 5)->value = 2;
 
-	printBoard3(sudoku);
+	printBoard(sudoku, SOLVE, 1);
 
 }
 
@@ -318,13 +318,13 @@ void saveLoadTest() {
 	int loaded;
 	SudokuBoard *sudoku = initializeBoard(3, 3);
 	sudoku = load(sudoku, "input.txt", &loaded);
-	printBoard3(sudoku); /* print loaded file */
+	printBoard(sudoku, SOLVE, 1); /* print loaded file */
 	getCell(sudoku, 2, 2)->value = 1;
 	getCell(sudoku, 2, 2)->fixed = 1;
-	printBoard3(sudoku); /* print loaded file with a change */
+	printBoard(sudoku, SOLVE, 1); /* print loaded file with a change */
 	save(sudoku, "output.txt", SOLVE);
 	sudoku = load(sudoku, "output.txt", &loaded);
-	printBoard3(sudoku); /* save change, load, and print again */
+	printBoard(sudoku, SOLVE, 1); /* save change, load, and print again */
 }
 
 void fileTest() {
@@ -415,7 +415,6 @@ void LPSolTest() {
 int test() {
 	SudokuBoard *sudoku = initializeBoard(3, 3);
 	destroyBoard(sudoku);
-	srand(time(NULL));
 	LPSolTest();
 	gameTest();
 	exit(0);

@@ -1,15 +1,14 @@
 /*
- * Stack.c
- *
- *  Created on: 24 בפבר׳ 2019
- *      Author: yahav
+ * Stack.c:
+ * This moudle implements Stack.h
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "Stack.h"
 #include "MainAux.h"
+
+/* =============== PUBLIC FUNCTIONS =============== */
 
 void push(int i, int j, int lastUsed, Stack *stk) {
 	StackNode *p = malloc(sizeof(StackNode));

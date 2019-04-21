@@ -15,19 +15,19 @@
 #include "test.h"
 #include "SPBufferset.h"
 #include "FileHandle.h"
-#include "LPSolver.h"
 
 int main() {
 	SudokuBoard *sudoku = NULL;
 	Status mode = INIT;
 	Command *c;
-	int markErrorsVar = 1, temp, print = 0, exit = 0;
+	int markErrors = 1, temp, print = 0, exit = 0;
 	List *movesList = createNewList();
 	int loaded;
+	srand(time(NULL)); /* For functions that base on randomization */
 	SP_BUFF_SET()
 
-	/*destroyList(movesList);
-	test();*/
+		/*destroyList(movesList);
+		 test();*/
 
 	printInstruction(WELCOME);
 
@@ -35,9 +35,9 @@ int main() {
 		printInstruction(ENTER_COMMAND);
 		c = parseInput(sudoku, mode);
 		/*printf(
-				"x : %d , y: %d , z : %d , threshold : %f, cmd : %d , path : %s \n",
-				c->params[0], c->params[1], c->params[2], c->threshold,
-				c->command, c->path);*/
+		 "x : %d , y: %d , z : %d , threshold : %f, cmd : %d , path : %s \n",
+		 c->params[0], c->params[1], c->params[2], c->threshold,
+		 c->command, c->path);*/
 		switch (c->command) { /* c.command is command type */
 		case COMMAND_TOO_LONG:
 		case UNKNOWN_COMMAND:
@@ -50,8 +50,12 @@ int main() {
 
 			if (loaded) { /* Load was successful */
 				mode = SOLVE;
-				resetList(movesList); /* clear moves list */
+				resetList(movesList); /* Clear moves list */
 				print = 1;
+				if (isSolved(sudoku)) {
+					printInstruction(FAKE_WIN);
+					mode = INIT;
+				}
 			}
 
 			break;
@@ -73,7 +77,8 @@ int main() {
 			break;
 
 		case MARK_ERRORS:
-			markErrorsVar = c->params[0];
+			markErrors = c->params[0];
+			printInstructionWithParam(MARK_ERRORS, c->params[0]);
 			break;
 
 		case PRINT_BOARD:
@@ -83,14 +88,12 @@ int main() {
 		case SET:
 			print = set(sudoku, c->params[1], c->params[0], c->params[2], mode,
 					movesList);
-			if (mode != EDIT) {
-				if (isSolved(sudoku)) {
-					printInstruction(WIN);
+			if (print) { /* The set operation was successful */
+				if (validateSolution(sudoku, mode)) { /* Board is solved */
 					mode = INIT;
-				} else if (isFull(sudoku)) {
-					printError(ERRONEOUS_BOARD);
 				}
 			}
+
 			break;
 
 		case VALIDATE:
@@ -103,6 +106,11 @@ int main() {
 
 		case GUESS:
 			print = guess(sudoku, c->threshold, movesList);
+			if (print) { /* The guess operation was successful */
+				if (validateSolution(sudoku, mode)) { /* Board is solved */
+					mode = INIT;
+				}
+			}
 			break;
 
 		case GENERATE:
@@ -131,13 +139,18 @@ int main() {
 
 		case NUM_SOLUTIONS:
 			temp = findNumberOfSolutions(sudoku);
-			if (temp != -1) /* An error occured */{
-				printInstructionWithRange(NUM_OF_SOLUTIONS, temp);
+			if (temp != -1) /* -1 indicates an error occured */{
+				printInstructionWithParam(NUM_SOLUTIONS, temp);
 			}
 			break;
 
 		case AUTOFILL:
 			print = autofill(sudoku, movesList);
+			if (print) { /* The autofill operation was successful */
+				if (validateSolution(sudoku, mode)) { /* Board is solved */
+					mode = INIT;
+				}
+			}
 			break;
 
 		case RESET:
@@ -150,7 +163,7 @@ int main() {
 		}
 		free(c);
 		if (print) {
-			printBoard(sudoku, mode, markErrorsVar);
+			printBoard(sudoku, mode, markErrors);
 			print = 0;
 		}
 	}

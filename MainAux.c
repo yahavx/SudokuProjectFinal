@@ -1,8 +1,6 @@
 /*
- * MainAux.c
- *
- *  Created on: 21 áôáø× 2019
- *      Author: yahav
+ * MainAux.c:
+ * This module implements MainAux.h.
  */
 
 #include <stdio.h>
@@ -13,17 +11,17 @@
 #include "MainAux.h"
 #include "GameAux.h"
 
+void initCell(Cell *c, int data);
+
+int isFull(SudokuBoard *sudoku);
+
+/* =============== PUBLIC FUNCTIONS =============== */
+
 void assertMalloc(void* pointer) {
 	if (pointer == NULL) {
 		printError(MALLOC_FAILED);
 		exit(0);
 	}
-}
-
-void initCell(Cell *c, int data) {
-	c->error = 0;
-	c->fixed = 0;
-	c->value = data;
 }
 
 SudokuBoard* initializeBoard(int n, int m) {
@@ -51,6 +49,36 @@ void destroyBoard(SudokuBoard* sudoku) {
 	}
 
 }
+
+SudokuBoard* clone(SudokuBoard* sudoku) {
+	SudokuBoard* sudokuCopy;
+
+	int i, j, n = sudoku->n, m = sudoku->m;
+
+	sudokuCopy = initializeBoard(n, m);
+
+	for (i = 0; i < n * m; i++) {
+		for (j = 0; j < n * m; j++) {
+			getCell(sudokuCopy, i, j)->value = getCell(sudoku, i, j)->value;
+			getCell(sudokuCopy, i, j)->fixed = getCell(sudoku, i, j)->fixed;
+			getCell(sudokuCopy, i, j)->error = getCell(sudoku, i, j)->error;
+		}
+	}
+
+	return sudokuCopy;
+}
+
+void copy(SudokuBoard* sudoku, SudokuBoard* sudokuCopy) {
+	int i, j, n = sudoku->n, m = sudoku->m;
+
+	for (i = 0; i < n * m; i++) {
+		for (j = 0; j < n * m; j++) {
+			getCell(sudokuCopy, i, j)->value = getCell(sudoku, i, j)->value;
+		}
+	}
+}
+
+/**** Print functions ****/
 
 void printSeperator(int length) {
 	int i;
@@ -99,24 +127,31 @@ void printBoard(SudokuBoard *sudoku, Status mode, int markErrors) {
 
 	}
 }
-void printBoard3(SudokuBoard *sudoku) {
-	printBoard(sudoku, SOLVE, 1);
-}
 
-void printCellUpdate(CommandType command, int i, int j, int oldVal, int newVal){
+void printCellUpdate(CommandType command, int i, int j, int oldVal, int newVal) {
 	i++;
 	j++; /* Change indices to be 1-based */
 
-	if (command == AUTOFILL){
-		printf("Autofill: cell (%d,%d) set to %d.\n",i,j,newVal);
+	if (command == AUTOFILL) {
+		printf("Autofill: cell (%d,%d) set to %d.\n", i, j, newVal);
 	}
 
-	if (command == GUESS){
-		printf("Guess: cell (%d,%d) set to %d.\n",i,j,oldVal);
+	if (command == GUESS) {
+		printf("Guess: cell (%d,%d) set to %d.\n", i, j, oldVal);
+	}
+
+	if (command == REDO) {
+		printf("Redo: changed cell (%d,%d) from %d to %d.\n", i, j, oldVal,
+				newVal);
+	}
+
+	if (command == UNDO) {
+		printf("Undo: changed cell (%d,%d) from %d to %d.\n", i, j, oldVal,
+				newVal);
 	}
 }
 
-void printFormat(CommandType command){
+void printFormat(CommandType command) {
 	printFormatWithRange(command, 0);
 }
 
@@ -205,9 +240,21 @@ void printFormatWithRange(CommandType command, int range) {
 	}
 }
 
-void printInstructionWithRange(Instruction instType, int num){
-	if (instType == NUM_OF_SOLUTIONS){
-		printf("The board has %d solutions.\n", num);
+void printGuessHintScore(int val, float score) {
+	printf("Value %d has a score of %.2f.\n", val, score);
+}
+
+void printInstructionWithParam(CommandType command, int param) {
+	if (command == NUM_SOLUTIONS) {
+		printf("The board has %d solutions.\n", param);
+	}
+
+	if (command == MARK_ERRORS) {
+		printf("Mark errors parameter is set to %d.\n", param);
+	}
+
+	if (command == HINT) {
+		printf("Hint: set cell to %d.\n", param);
 	}
 }
 
@@ -241,14 +288,14 @@ void printInstruction(Instruction instType) {
 		printf("Congratulations! You solved the puzzle.\n");
 	}
 
+	if (instType == FAKE_WIN) {
+		printf(
+				"This puzzle is already solved. Please load in edit mode to edit the puzzle.\n");
+	}
+
 }
 
-void printError(Error errorType){
-	printErrorWithRange(errorType, 0, 0);
-}
-
-void printErrorWithRange(Error errorType, int start, int end) {
-
+void printError(Error errorType) {
 	printf("Error: ");
 
 	/* Errors releated to legal commands (i.e. valid input) */
@@ -285,27 +332,20 @@ void printErrorWithRange(Error errorType, int start, int end) {
 		printf("cell already contains a value.\n");
 	}
 
-	if (errorType == INVALID_X){
-		printf("invalid value for the first parameter, should be an integer between %d to %d.\n",start,end);
+	if (errorType == MARK_ERRORS_INVALID_VALUE) {
+		printf(
+				"invalid value for the command's parameter, should be 0 or 1.\n");
 	}
 
-	if (errorType == INVALID_Y){
-		printf("invalid value for the second parameter, should be an integer between %d to %d.\n",start,end);
+	if (errorType == GUESS_INVALID_VALUE) {
+		printf(
+				"invalid value for the command's parameter, should be a float between 0 to 1.\n");
 	}
 
-	if (errorType == INVALID_Z){
-		printf("invalid value for the third parameter, should be an integer between %d to %d.\n",start,end);
+	if (errorType == UNABLE_TO_VERIFY) {
+		printf("Unable to verify board. Saving failed.\n");
 	}
-
-	if (errorType == MARK_ERRORS_INVALID_VALUE){
-		printf("invalid value for the command's parameter, should be 0 or 1.\n");
-	}
-
-	if (errorType == GUESS_INVALID_VALUE){
-		printf("invalid value for the command's parameter, should be a float between 0 to 1.\n");
-	}
-
-	/* Errors releated to invalid input */
+	/* Errors releated to invalid input (wrong commands or parameters) */
 
 	if (errorType == TOO_MANY_PARAMS) {
 		printf("too many parameters for this command.\n");
@@ -330,9 +370,14 @@ void printErrorWithRange(Error errorType, int start, int end) {
 	if (errorType == TOO_LONG) {
 		printf("a command should contain no more than 256 characters.\n");
 	}
-	if (errorType == INVALID_COMMAND){
-	printf("unknown command, please try again.\n");
+	if (errorType == INVALID_COMMAND) {
+		printf("unknown command, please try again.\n");
 	}
+
+	if (errorType == WRONG_PATH) {
+		printf("invalid path.");
+	}
+
 	/* System errors */
 
 	if (errorType == FILE_UNHANDLED) {
@@ -351,43 +396,98 @@ void printErrorWithRange(Error errorType, int start, int end) {
 		printf("gurobi has encountered an error.\n");
 	}
 
-	if (errorType == WRONG_PATH) {
-		printf("invalid path.");
-	}
 }
 
-SudokuBoard* clone(SudokuBoard* sudoku) {
-	SudokuBoard* sudokuCopy;
+void printInvalidParameter(Error errorType, int start, int end) {
 
-	int i, j, n = sudoku->n, m = sudoku->m;
+	printf("Error: ");
 
-	sudokuCopy = initializeBoard(n, m);
-
-	for (i = 0; i < n * m; i++) {
-		for (j = 0; j < n * m; j++) {
-			getCell(sudokuCopy, i, j)->value = getCell(sudoku, i, j)->value;
-			getCell(sudokuCopy, i, j)->fixed = getCell(sudoku, i, j)->fixed;
-			getCell(sudokuCopy, i, j)->error = getCell(sudoku, i, j)->error;
-		}
+	if (errorType == INVALID_X) {
+		printf(
+				"invalid value for the first parameter, should be an integer between %d to %d.\n",
+				start, end);
 	}
 
-	return sudokuCopy;
-}
-
-void copy(SudokuBoard* sudoku, SudokuBoard* sudokuCopy) {
-	int i, j, n = sudoku->n, m = sudoku->m;
-
-	for (i = 0; i < n * m; i++) {
-		for (j = 0; j < n * m; j++) {
-			getCell(sudokuCopy, i, j)->value = getCell(sudoku, i, j)->value;
-		}
+	if (errorType == INVALID_Y) {
+		printf(
+				"invalid value for the second parameter, should be an integer between %d to %d.\n",
+				start, end);
 	}
+
+	if (errorType == INVALID_Z) {
+		printf(
+				"invalid value for the third parameter, should be an integer between %d to %d.\n",
+				start, end);
+	}
+
+	if (errorType == NOT_ENOUGH_EMPTY_CELLS) {
+		printf("the board contains only %d empty cells.\n", start);
+	}
+
 }
 
-void initializeArray(char c[], int N) {
-	int i;
+int validateSolution(SudokuBoard* sudoku, Status mode) {
+	if (mode == EDIT) {
+		return 0;
+	}
+
+	if (isSolved(sudoku)) {
+		printInstruction(WIN);
+		return 1;
+	}
+
+	if (isFull(sudoku)) {
+		printError(ERRONEOUS_BOARD);
+		return 0;
+	}
+
+	return 0;
+}
+
+int isSolved(SudokuBoard *sudoku) {
+	int i, j, N = sudoku->n * sudoku->m;
+
 	for (i = 0; i < N; i++) {
-		c[i] = '\0';
+		for (j = 0; j < N; j++) {
+			if (getCell(sudoku, i, j)->value == 0) {
+				return 0;
+			}
+		}
 	}
+
+	if (isErroneous(sudoku)) {
+		return 0;
+	}
+
+	return 1;
+}
+
+/* =============== PRIVATE FUNCTIONS =============== */
+
+/*
+ * Sets cell fields to zero, and value to 'data'.
+ * Private function.
+ */
+void initCell(Cell *c, int data) {
+	c->error = 0;
+	c->fixed = 0;
+	c->value = data;
+}
+
+/*
+ * Returns 1 iff the board is full (i.e. all cells are filled with a value from 1 to N).
+ */
+int isFull(SudokuBoard *sudoku) {
+	int i, j, N = sudoku->n * sudoku->m;
+
+	for (i = 0; i < N; i++) {
+		for (j = 0; j < N; j++) {
+			if (getCell(sudoku, i, j)->value == 0) {
+				return 0;
+			}
+		}
+	}
+
+	return 1;
 }
 

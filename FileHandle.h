@@ -1,6 +1,6 @@
 /*
  * FileHandle.h:
- * This module contains functions that support loading and saving a board, i.e. solve, edit, save.
+ * This module supports loading and saving a board, i.e. implements solve, edit, save.
  */
 
 #ifndef FILEHANDLE_H_

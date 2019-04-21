@@ -1,8 +1,8 @@
 /*
- * Parser.c
+ * Parser.c:
+ * This module implements Parser.h.
  *
- *  Created on: Feb 25, 2019
- *      Author: Orin
+ * Most of the commands verifications are done via ParserAux.
  */
 
 #include <stdio.h>
@@ -15,6 +15,13 @@
 #include "LinkedMovesList.h"
 
 #define  MAX_COMMAND_LENGTH  256
+
+Command* createIllegalCommand();
+
+Command* createCommand(int params[3], char path[256], CommandType cmd,
+		double threshold);
+
+/* =============== PUBLIC FUNCTIONS =============== */
 
 void assertFget() {
 	if (ferror(stdin)) {
@@ -30,35 +37,6 @@ int assertFopen(FILE *fp) {
 	return 1;
 }
 
-
-Command* createIllegalCommand() {
-	Command* toReturn = (Command*) malloc(sizeof(Command));
-	assertMalloc((void*) toReturn);
-	toReturn->command = ILLEGALY_HANDLED_COMMAND;
-	return toReturn;
-}
-
-/* Creates a new command struct object, and assign given arguments to it.
- * Return a pointer to the new struct.
- * @pre - path is an initialized array.
- */
-Command* createCommand(int params[3], char path[256], CommandType cmd,
-		double threshold) {
-	Command* toReturn = (Command*) malloc(sizeof(Command));
-	assertMalloc((void*) toReturn);
-	toReturn->command = cmd;
-	toReturn->params[0] = params[0];
-	toReturn->params[1] = params[1];
-	toReturn->params[2] = params[2];
-	strcpy(toReturn->path, path);
-	toReturn->threshold = threshold;
-	return toReturn;
-}
-
-/*
- * Creates a new command struct object which represent ILLEGALY_HANDALED_COMMAND.
- * Return a pointer to it.
- */
 Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	char str[257];
 	char* stream;
@@ -117,7 +95,8 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	assertFget();
 
 	strcat(c, str);
-	if ((strlen(c) > MAX_COMMAND_LENGTH)&&(c[256]!='\0' && c[256]!='\n')) { /* command contains more than 256 characters */
+	if ((strlen(c) > MAX_COMMAND_LENGTH)
+			&& (c[256] != '\0' && c[256] != '\n')) { /* command contains more than 256 characters */
 
 		if (c[256] != '\0' && c[256] != '\n' && c[256] != EOF) {
 			finishTheLine(); /* read until the end of the command*/
@@ -332,3 +311,32 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	return cmdToReturn;
 }
 
+/* =============== PRIVATE FUNCTIONS =============== */
+
+/*
+ * Creates a new command struct object which represent ILLEGALY_HANDALED_COMMAND.
+ * Return a pointer to it.
+ */
+Command* createIllegalCommand() {
+	Command* toReturn = (Command*) malloc(sizeof(Command));
+	assertMalloc((void*) toReturn);
+	toReturn->command = ILLEGALY_HANDLED_COMMAND;
+	return toReturn;
+}
+
+/* Creates a new command struct object, and assign given arguments to it.
+ * Return a pointer to the new struct.
+ * @pre - path is an initialized array.
+ */
+Command* createCommand(int params[3], char path[256], CommandType cmd,
+		double threshold) {
+	Command* toReturn = (Command*) malloc(sizeof(Command));
+	assertMalloc((void*) toReturn);
+	toReturn->command = cmd;
+	toReturn->params[0] = params[0];
+	toReturn->params[1] = params[1];
+	toReturn->params[2] = params[2];
+	strcpy(toReturn->path, path);
+	toReturn->threshold = threshold;
+	return toReturn;
+}

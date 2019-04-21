@@ -1,8 +1,10 @@
 /*
  * GameAux.h:
- * This module is an auxiliary module for Game. It supports
+ * This module is an auxiliary module for Game.
  *
  * In addition, it includes basic board operations and checks.
+ *
+ * No private functions in this module as they are to be used by other modules.
  */
 
 #ifndef GAMEAUX_H_
@@ -23,7 +25,7 @@ int isErroneous(SudokuBoard *sudoku);
 
 /*
  * Checks if cell (i,j) contains a single legal value.
- * Returns the value if yes, 0 otherwise. Sets cell to zero when finish.
+ * Returns the value if yes, 0 otherwise.
  * @pre - cell (i,j) is empty.
  */
 int isSingleLegalValue(SudokuBoard *sudoku, int i, int j);
@@ -39,15 +41,6 @@ void fixCells(SudokuBoard* sudoku, int fixed);
  */
 void markErroneousCells(SudokuBoard *sudoku);
 
-/*
- * Returns 1 iff the board is solved.
- */
-int isSolved(SudokuBoard *sudoku);
-
-/*
- * Returns 1 iff the board is full (i.e. all cells are filled with a value from 1 to N).
- */
-int isFull(SudokuBoard *sudoku);
 
 /* =========== Supportive functions for game =========== */
 

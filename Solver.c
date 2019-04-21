@@ -1,15 +1,18 @@
 /*
- * Solver.c
- *
- *  Created on: 21 áôáø× 2019
- *      Author: yahav
+ * Solver.c:
+ * This module implements Solver.h.
  */
 
 #include "MainAux.h"
 #include "Stack.h"
 #include "GameAux.h"
-#include "Game.h"
 #include "LPSolver.h"
+
+int nextI(int i, int j, int N);
+
+int nextJ(int j, int N);
+
+/* =============== PUBLIC FUNCTIONS =============== */
 
 int validConfiguration(SudokuBoard* sudoku, int i, int j) {
 	int k, l, N, val, n, m, blockStartI, blockStartJ;
@@ -92,19 +95,6 @@ void validNeighbours(SudokuBoard* sudoku, int i, int j, int val) {
 			}
 		}
 	}
-}
-
-int nextI(int i, int j, int N) {
-	if (j == N - 1)
-		return i + 1;
-	return i;
-}
-
-int nextJ(int j, int N) {
-	if (j < N - 1) {
-		return j + 1;
-	}
-	return 0;
 }
 
 int findNumberOfSolutions(SudokuBoard* sudoku) {
@@ -235,4 +225,27 @@ void getSolution(SudokuBoard *sudoku) {
 	}
 
 	destroyLPSolution(boardSol);
+}
+
+/* =============== PRIVATE FUNCTIONS =============== */
+
+/*
+ * Increment the index (i,j), and returns the i of the new index.
+ * @param N - board dimension.
+ */
+int nextI(int i, int j, int N) {
+	if (j == N - 1)
+		return i + 1;
+	return i;
+}
+
+/*
+ * Increment the index (*,j), and returns the j of the new index.
+ * @param N - board dimension.
+ */
+int nextJ(int j, int N) {
+	if (j < N - 1) {
+		return j + 1;
+	}
+	return 0;
 }

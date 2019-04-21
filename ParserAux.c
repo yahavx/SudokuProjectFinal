@@ -1,8 +1,6 @@
 /*
- * ParserAux.c
- *
- *  Created on: Feb 23, 2019
- *      Author: Orin
+ * ParserAux.c:
+ * This module implements ParserAux.h.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -248,16 +246,16 @@ int checkSetCommand(char* stream, int range, Status mode, int params[3]) {
 	}
 
 	if (!(isNumInRange(params[0] + 1, 1, range))) {
-		printErrorWithRange(INVALID_X, 1, range);
+		printInvalidParameter(INVALID_X, 1, range);
 		return 0;
 	}
 
 	if (!(isNumInRange(params[1] + 1, 1, range))) {
-		printErrorWithRange(INVALID_Y,1,range);
+		printInvalidParameter(INVALID_Y,1,range);
 		return 0;
 	}
 	if (!(isNumInRange(params[2], 0, range))) {
-		printErrorWithRange(INVALID_Z,0,range);
+		printInvalidParameter(INVALID_Z,0,range);
 		return 0;
 	}
 
@@ -348,11 +346,11 @@ int checkGenerateCommand(char* stream, int range, Status mode, int params[3]) {
 		return 0;
 	}
 	if (!(isNumInRange(params[0], 0, range * range))) {
-		printErrorWithRange(INVALID_X,0,range*range);
+		printInvalidParameter(INVALID_X,0,range*range);
 		return 0;
 	}
 	if (!(isNumInRange(params[1], 0, range * range))) {
-		printErrorWithRange(INVALID_Y,0, range*range);
+		printInvalidParameter(INVALID_Y,0, range*range);
 		return 0;
 	}
 
@@ -387,11 +385,11 @@ int checkHint_GuessHint_Commands(char* stream, int range, Status mode,
 	}
 
 	if (!(isNumInRange(params[0] + 1, 1, range))) {
-		printErrorWithRange(INVALID_X,1,range);
+		printInvalidParameter(INVALID_X,1,range);
 		return 0;
 	}
 	if (!(isNumInRange(params[1] + 1, 1, range))) {
-		printErrorWithRange(INVALID_Y,1,range);
+		printInvalidParameter(INVALID_Y,1,range);
 		return 0;
 	}
 
@@ -426,5 +424,12 @@ int checkSaveCommand(char* stream, Status mode, char path[256]) {/*working*/
 		return 0;
 	}
 	return 1;
+}
+
+void initializeArray(char c[], int N) {
+	int i;
+	for (i = 0; i < N; i++) {
+		c[i] = '\0';
+	}
 }
 

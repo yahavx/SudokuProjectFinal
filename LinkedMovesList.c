@@ -1,8 +1,6 @@
 /*
- * LinkedMovesList.c
- *
- *  Created on: Feb 22, 2019
- *      Author: Orin
+ * LinkedMovesList.c:
+ * This module implements LinkedMovesList.h.
  */
 
 

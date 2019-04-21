@@ -1,17 +1,19 @@
 /*
  * Game.c:
  * This module implements Game.h.
+ *
+ * It contains the implementations of the funtions declared in the header only.
+ * Any auxiliary function is placed in GameAux.
  */
 
+#include <stdlib.h>
+#include "MainAux.h"
 #include "Solver.h"
 #include "Game.h"
-#include "MainAux.h"
 #include "SPBufferset.h"
 #include "LinkedMovesList.h"
-#include "ParserAux.h"
 #include "GameAux.h"
 #include "test.h"
-#include "unistd.h"
 #include "LPSolver.h"
 
 /* =============== PUBLIC FUNCTIONS =============== */
@@ -107,8 +109,7 @@ int guess(SudokuBoard *sudoku, double threshold, List *l) {
 					candidates);
 
 			getCell(sudoku, i, j)->value = legals[randomIndex];
-			printf("Guess: changed cell (%d,%d) from %d to %d.\n", i, j, 0,
-					legals[randomIndex]);
+			printCellUpdate(GUESS, i, j, 0, legals[randomIndex]);
 		}
 	}
 
@@ -129,7 +130,7 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 
 	emptyCells = emptyCellsNum(sudoku);
 	if (X > emptyCells) {
-		printf("Error: the board contains only %d empty cells.\n", emptyCells);
+		printInvalidParameter(NOT_ENOUGH_EMPTY_CELLS, emptyCells, 0);
 		return 0;
 	}
 
@@ -223,7 +224,7 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 
 	if (debug) {
 		printf("Board after assigning X values:\n");
-		printBoard3(sudoku);
+		printBoard(sudoku, SOLVE, 1);
 		printf("\n");
 	}
 
@@ -231,9 +232,9 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 
 	if (debug) {
 		printf("Solution:\n");
-		printBoard3(sudoku);
+		printBoard(sudoku, SOLVE, 1);
 	}
-	fixCells(sudoku, 0); /* unfix all values */
+	fixCells(sudoku, 0); /* Unfix all values */
 
 	chosenCells = 0;
 	if (debug)
@@ -283,8 +284,8 @@ int undo(SudokuBoard* sudoku, List * list) {
 		validNeighbours(sudoku, curr->i, curr->j, curr->oldCellValue); /* Update neighbours error status */
 		backwards = list->CurrentMove->continueBackwards;
 		list->CurrentMove = list->CurrentMove->prev;
-		printf("Undo: changed cell (%d,%d) from %d to %d.\n", curr->i + 1,
-				curr->j + 1, curr->newCellValue, curr->oldCellValue);
+		printCellUpdate(UNDO, curr->i, curr->j, curr->newCellValue,
+				curr->oldCellValue);
 	} while (backwards == 1 && list->CurrentMove != NULL);
 
 	return 1;
@@ -302,8 +303,9 @@ int redo(SudokuBoard* sudoku, List * list) {
 		getCell(sudoku, curr->i, curr->j)->value = curr->newCellValue;
 		validNeighbours(sudoku, curr->i, curr->j, curr->oldCellValue);
 		validNeighbours(sudoku, curr->i, curr->j, curr->newCellValue);
-		printf("Redo: changed cell (%d,%d) from %d to %d.\n", curr->i + 1,
-				curr->j + 1, curr->oldCellValue, curr->newCellValue);
+		printCellUpdate(REDO, curr->i, curr->j, curr->oldCellValue,
+				curr->newCellValue);
+
 	} while (list->CurrentMove->continueForward == 1
 			&& list->CurrentMove != NULL);
 
@@ -343,7 +345,7 @@ void hint(SudokuBoard *sudoku, int i, int j) {
 	case 1:
 		for (v = 1; v <= N; v++) {
 			if (getVariableAssignment(boardSol, i, j, v) == 1.0) {
-				printf("Hint: set cell to %d.\n", v);
+				printInstructionWithParam(HINT, v);
 				break;
 			}
 		}
@@ -386,8 +388,7 @@ void guessHint(SudokuBoard *sudoku, int i, int j) {
 	case 1:
 		for (v = 1; v <= N; v++) {
 			if (getVariableAssignment(boardSol, i, j, v) > 0) {
-				printf("Value %d has a score of %.2f.\n", v,
-						getVariableAssignment(boardSol, i, j, v));
+				printGuessHintScore(v,getVariableAssignment(boardSol, i, j, v));
 			}
 		}
 		break;
@@ -402,7 +403,7 @@ int reset(SudokuBoard* sudoku, List * list) {
 		return 0;
 	}
 
-	while (list->CurrentMove != list->Head) { /* while didn't reach the sentinel */
+	while (list->CurrentMove != list->Head) { /* While didn't reach the sentinel */
 		getCell(sudoku, list->CurrentMove->i, list->CurrentMove->j)->value =
 				list->CurrentMove->oldCellValue;
 		list->CurrentMove = list->CurrentMove->prev;
@@ -431,15 +432,14 @@ int autofill(SudokuBoard* sudoku, List *l) {
 				continue;
 			}
 
-			legalVal = isSingleLegalValue(sudokuCopy, i, j);
+			legalVal = isSingleLegalValue(sudokuCopy, i, j); /* Returns the single legal value if exists, 0 otherwise */
 
 			if (legalVal != 0) {
-				printf("Autofill: cell (%d,%d) set to %d.\n", i + 1, j + 1,
-						legalVal);
+				printCellUpdate(AUTOFILL,i,j,0,legalVal);
 				oldValue = getCell(sudoku, i, j)->value;
 				newValue = legalVal;
 				if (first) {
-					addNewMove(l, oldValue, newValue, i, j, 1, 0); /* Continue backwards of the first is 0 */
+					addNewMove(l, oldValue, newValue, i, j, 1, 0); /* continueBackwards of the first is 0 */
 					first = 0;
 				} else
 					addNewMove(l, oldValue, newValue, i, j, 1, 1);
@@ -448,7 +448,7 @@ int autofill(SudokuBoard* sudoku, List *l) {
 
 		}
 	}
-	l->CurrentMove->continueForward = 0; /* Continue forward of the last is 0 */
+	l->CurrentMove->continueForward = 0; /* continueForward of the last is 0 */
 	markErroneousCells(sudoku);
 	destroyBoard(sudokuCopy);
 	return 1;

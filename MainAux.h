@@ -1,8 +1,10 @@
 /*
- * MainAux.h
+ * MainAux.h:
+ * This module is in an auxiliary for the main. It supports basic sudoku board handling (creating, destroying, etc).
  *
- *  Created on: 21 áôáø× 2019
- *      Author: yahav
+ * Interaction with the user is done through this module.
+ *
+ * In addition, it defines commands, errors and instruction enums.
  */
 
 #ifndef MAINAUX_H_
@@ -13,7 +15,7 @@
 
 /* Defines error type */
 typedef enum {
-	/* commands unable to execute */
+	/* Commands unable to execute */
 	FIXED_CELL,
 	ERRONEOUS_BOARD,
 	NO_MOVE_TO_UNDO,
@@ -27,8 +29,10 @@ typedef enum {
 	INVALID_Z,
 	MARK_ERRORS_INVALID_VALUE,
 	GUESS_INVALID_VALUE,
+	NOT_ENOUGH_EMPTY_CELLS,
+	UNABLE_TO_VERIFY,
 
-	/* commands */
+	/* Invalid commands or commands with invalid parameters (i.e. invalid input) */
 	TOO_MANY_PARAMS,
 	NOT_ENOUGH_PARAMS,
 	AVAILABLE_IN_EDIT_AND_SOLVE,
@@ -36,36 +40,41 @@ typedef enum {
 	AVAILABLE_IN_SOLVE,
 	WRONG_RANGE_OF_PARAM_VALUE,/*need to add a print commAnd*/
 	TOO_LONG,
+	WRONG_PATH,
 	INVALID_COMMAND,
 
-	/* system errors */
+	/* System errors */
 	FILE_UNHANDLED,
-	WRONG_PATH,
 	MALLOC_FAILED,
 	FGET_FAILED,
 	GUROBI_FAILED
 } Error;
 
 /*
- * Defines actions performed by the user.
+ * Defines actions performed by the user and general game states.
  */
 typedef enum {
 	WIN,
+	FAKE_WIN,
 	SOLVEABLE,
 	UNSOLVEABLE,
 	WELCOME,
 	EXITING,
 	ENTER_COMMAND,
 	GAME_SAVED,
-	NUM_OF_SOLUTIONS
+	NUM_OF_SOLUTIONS,
+	MARK_ERRORS_SET
 } Instruction;
 
+/*
+ * Defines game commands and invalid commands.
+ */
 typedef enum {
 	COMMAND_TOO_LONG,
-	UNKNOWN_COMMAND, /* command does not exist */
-	ILLEGALY_HANDLED_COMMAND, /* command is not used properly */
+	UNKNOWN_COMMAND,
+	ILLEGALY_HANDLED_COMMAND,
 	EMPTY_COMMAND,
-	SOLVE_COMMAND, /* commands start here */
+	SOLVE_COMMAND, /* List of commands starts here */
 	EDIT_WITH_FILE_NAME,
 	EDIT_WITHOUT_FILE_NAME,
 	MARK_ERRORS,
@@ -83,8 +92,14 @@ typedef enum {
 	AUTOFILL,
 	RESET,
 	EXIT
-
 } CommandType;
+
+
+/*
+ * Checks if malloc memory allocation failed. terminates the program and prints a message if indeed.
+ * @param pointer - the pointer which a malloc operation was perfromed on
+ */
+void assertMalloc(void* pointer);
 
 /*
  * Creates a new sudokuBoard, allocate space to all fields, and set all values to zero.
@@ -92,43 +107,54 @@ typedef enum {
 SudokuBoard* initializeBoard(int n, int m);
 
 /*
- * Checks if malloc memory allocation failed. terminates program if indeed.
- * @param pointer - the pointer which a malloc operation was perfromed on
+ * Destroy a sudoku board, free all its memory resources.
  */
-void assertMalloc(void* pointer);
+void destroyBoard(SudokuBoard* sudoku);
 
 /*
- * Prints the current board state.
+ * Returns a deep clone of sudoku.
+ */
+SudokuBoard* clone(SudokuBoard* sudoku);
+
+/*
+ * Copy cell values (only) from sudoku to sudokuCopy.
+ */
+void copy(SudokuBoard* sudoku, SudokuBoard* sudokuCopy);
+
+/**** Print functions ****/
+
+/*
+ * Prints a sudoku board.
+ * @param mode - game mode
+ * @param markErrors - the value of the mark errors variable.
  */
 void printBoard(SudokuBoard *sudoku, Status mode, int markErrors);
 
 /*
- * Prints a seperator
+ * Prints a seperator row.
+ * @param length - row length.
  */
 void printSeperator(int length);
 
 /*
- * Sets cell fields to zero, and value to 'data'.
- */
-void initCell(Cell *c, int data);
-
-/*
  * Informs the user about a cell value update.
- * @params: i - row index, j - column index (0 based), oldVal - old cell, newVal - newly assigned value.
- * @pre - command is AUTOFILL, GUESS, REDO, UNDO (i.e. commands that change cells without the user implicitly choosing them).
+ * @params: i - row index, j - column index (0 based), oldVal - old cell value, newVal - newly assigned value.
+ * @pre - command is AUTOFILL, GUESS, REDO, UNDO (i.e. commands that change cells without the user implicitly choosing them, in solve mode).
  */
 void printCellUpdate(CommandType command, int i, int j, int oldVal, int newVal);
 
 /*
  * Prints an error message.
  * @param errorType - error type.
- * @param range - a valid range for a parameter.
+ * @params start, end - a valid range for the parameter. If the error should not describe a range (i.e. generate), uses
+ * first parameter only (start).
+ * @pre - errorType is a parameter-type error.
  */
-void printErrorWithRange(Error errorType, int start, int end);
+void printInvalidParameter(Error errorType, int start, int end);
 
 /*
  * Prints an error message.
- * @param errorType - info about the relevant error
+ * @param errorType - error type.
  */
 void printError(Error errorType);
 
@@ -146,38 +172,33 @@ void printFormatWithRange(CommandType command, int range);
 void printFormat(CommandType command);
 
 /*
- * Hints the user.
- * @param num - a parameter relevant to the message.
+ * Prints a guess hint message about a single value.
+ * @params val - cell value, score - score of that value (found by LP).
  */
-void printInstructionWithRange(Instruction instType, int num);
+void printGuessHintScore(int val, float score);
 
 /*
- * Hints the user.
+ * Used for mark_errors, num_solutions and hint.
+ * @param param - mark_errors new value, number of solutions to the board, or the value found by hint.
+ */
+void printInstructionWithParam(CommandType command, int param);
+
+/*
+ * Prints general messages about the game state.
  */
 void printInstruction(Instruction instType);
 
 /*
- * Initialize the array by setting all elements to zero.
- * @param c - pointer to the array of char, N - array size
+ * Returns 1 if the current board is solved, i.e. in solve mode
+ * and all the cells are filled and not erroneous.
+ *
+ * If the board is full, prints appropriate message (win, or error).
  */
-void initializeArray(char c[], int N);
+int validateSolution(SudokuBoard* sudoku, Status mode);
 
 /*
- * Destroy a sudoku board, free all its memory resources.
+ * Returns 1 iff the board is solved.
  */
-void destroyBoard(SudokuBoard* sudoku);
-
-/*
- * Returns a deep clone of sudoku.
- */
-SudokuBoard* clone(SudokuBoard* sudoku);
-
-/*
- * Copy cell values (only) from sudoku to sudokuCopy.
- */
-void copy(SudokuBoard* sudoku, SudokuBoard* sudokuCopy);
-
-
-void printBoard3(SudokuBoard *sudoku);
+int isSolved(SudokuBoard *sudoku);
 
 #endif /* MAINAUX_H_ */

@@ -1,8 +1,8 @@
 /*
- * ParserAux.h
+ * ParserAux.h:
+ * This module is resposible for receiving input from the user and proccesing it.
  *
- *  Created on: Feb 23, 2019
- *      Author: Orin
+ * It also validates the commands are entered in the corrent mode, and that command's parameters are in the correct range.
  */
 
 #ifndef PARSERAUX_H_
@@ -24,13 +24,13 @@
  */
 int isValidNumber(char* stream, int N);
 
-/*@params- stream- string to cheack
- *  This function gets string and cheack if represent a valid number. if true return 1. otherwise 0;
+/*@params- stream- string to check
+ *  This function gets string and check if represent a valid number. if true return 1. otherwise 0;
  * @pre : stream !=NULL;
  */
 int isNum(char* stream);
 
-/* @params- stream- string to cheack
+/* @params- stream- string to check
  * This function gets a string.
  * if it is a natural number return the numbrt it is, otherwise return -1;
  */
@@ -85,7 +85,7 @@ void finishTheLine();
  */
 int checkParamsNumber(char* stream, int paramsNum);
 
-/*@params - stream- stream which is the user's input to cheack.
+/*@params - stream- stream which is the user's input to check.
  * 		  - mode- represent the current game status (INIT, SOLVE or EDIT).
  * This function check if the bellow detaild commands are legal according to the project instructions. retrun 1 if true and 0 otherwise.
  * commands: redo,undo,validate,print board,reset,num_sulutions
@@ -95,7 +95,7 @@ int checkSeveralCommands(char* stream, Status mode);
 /* @params: stream- represent user input that recognized as set commamnd and its arguments.
  * 			mode- the game status (INIT, EDIT or SOLVE).
  * 			params- int array , which will conatin the X Y Z params in cells 0 1 2 of the array,in correspondence.
- * This function cheack if set command is legal and in the right mode of game and  ha right command structure according to the project
+ * This function check if set command is legal and in the right mode of game and  ha right command structure according to the project
  * instructions.
  * If true, the function update the int params array that concatins
  * the X Y Z params of set command, and return 1.
@@ -104,7 +104,7 @@ int checkSeveralCommands(char* stream, Status mode);
  */
 int checkSetCommand(char* stream, int range, Status mode, int params[3]);
 
-/* @parans - stream which represent string to cheack.
+/* @parans - stream which represent string to check.
  * This function return 1 if this string can be converted to flout
  * or 0 otherwise
  * @pre: stream!=NULL
@@ -163,5 +163,11 @@ int checkSaveCommand(char* stream, Status mode, char path[256]);
  *  If one of the strings are NULL, do nothing. (will never sent a null poiner to this function)
  */
 void safeCopy(char* stream, char* path);
+
+/*
+ * Initialize the array by setting all elements to zero.
+ * @param c - pointer to the array of char, N - array size
+ */
+void initializeArray(char c[], int N);
 
 #endif /* PARSERAUX_H_ */

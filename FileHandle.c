@@ -1,32 +1,29 @@
 /*
- * FileHandle.c
- *
- *  Created on: 16 באפר׳ 2019
- *      Author: yahav
+ * FileHandle.c:
+ * This module implements FileHandle.h.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include "ctype.h"
 #include "unistd.h"
 #include "MainAux.h"
 #include "ParserAux.h"
 #include "GameAux.h"
-#include "LPSolver.h"
+
+#define MAX_M 5
+#define MAX_N 5
 
 int isValidBoardFormat(FILE* input);
 
 /* =============== PUBLIC FUNCTIONS =============== */
 
 SudokuBoard* load(SudokuBoard *sudoku, char *fileName, int *success) {
-	int i, j, N, num;
-	char n[2], m[2];
+	int i, j, n, m, N, num;
 	FILE *input;
 
-	if (fileName == NULL) { /* edit without a file */
+	if (fileName == NULL) { /* Edit without a file */
 		if (sudoku != NULL)
-			destroyBoard(sudoku); /* free memory resources of old board */
+			destroyBoard(sudoku); /* Free memory resources of old board */
 		sudoku = initializeBoard(3, 3);
 		*success = 1;
 		return sudoku;
@@ -53,13 +50,13 @@ SudokuBoard* load(SudokuBoard *sudoku, char *fileName, int *success) {
 	}
 
 	if (sudoku != NULL)
-		destroyBoard(sudoku); /* free memory resources of old board */
+		destroyBoard(sudoku); /* Free memory resources of old board */
 
 	rewind(input);
-	fscanf(input, "%s", m);
-	fscanf(input, "%s", n);
-	sudoku = initializeBoard(atoi(n), atoi(m));
-	N = atoi(n) * atoi(m);
+	fscanf(input, "%d", &m);
+	fscanf(input, "%d", &n);
+	sudoku = initializeBoard(n, m);
+	N = n * m;
 
 	for (i = 0; i < N; i++) {
 		for (j = 0; j < N; j++) {
@@ -92,7 +89,7 @@ void save(SudokuBoard *sudoku, char *fileName, Status mode) {
 				printError(UNSOLVEABLE_BOARD);
 			}
 			if (c == -1) {
-				printf("Unable to verify board. Saving failed.\n");
+				printError(UNABLE_TO_VERIFY);
 			}
 			return;
 		}
@@ -152,7 +149,7 @@ int longestWord(FILE *input) {
 }
 
 /*
- * Checks if word represents a valid cell format, i.e. number is in range 0-N, possibly with dot at the end.
+ * Checks if a word represents a valid cell format, i.e. number is in the range 0-N (board dimension), possibly with dot at the end.
  */
 int isValidCellFormat(char* word, int N) {
 	int x;
@@ -165,15 +162,14 @@ int isValidCellFormat(char* word, int N) {
 				fixed = 1;
 				break; /* a number followed by a dot, legal cell (fixed) */
 			}
-			/*printf("illegal word\n");*/
 			return 0;
 		}
 		i++;
 	}
 
-	x = atoi(word); /* will ignore the dot, if exists */
+	x = atoi(word); /* Will ignore the dot, if exists */
 
-	if (x == 0 && fixed == 1) { /* empty cell cannot be fixed, and a dot without a number before is also illegal */
+	if (x == 0 && fixed == 1) { /* Empty cell cannot be fixed, and a dot without a number before is also illegal */
 		return 0;
 	}
 
@@ -229,17 +225,7 @@ int isValidBoardFormat(FILE* input) {
 	stream = malloc((longest + 1) * sizeof(char));
 	assertMalloc((void*) stream);
 
-	if (fscanf(input, "%s", stream) == -1 || !isValidNumber(stream, 5)) { /* reached EOF while reading n */
-		free(stream);
-		if (debug)
-			printf("n is erroneous\n");
-		return 0;
-
-	}
-
-	n = atoi(stream);
-
-	if (fscanf(input, "%s", stream) == -1 || !isValidNumber(stream, 5)) { /* reached EOF while reading n */
+	if (fscanf(input, "%s", stream) == -1 || !isValidNumber(stream, MAX_M)) { /* Reached EOF while reading n, or invalid number */
 		free(stream);
 		if (debug)
 			printf("m is erroneous\n");
@@ -248,6 +234,16 @@ int isValidBoardFormat(FILE* input) {
 	}
 
 	m = atoi(stream);
+
+	if (fscanf(input, "%s", stream) == -1 || !isValidNumber(stream, MAX_N)) { /* Reached EOF while reading n, or invalid number */
+		free(stream);
+		if (debug)
+			printf("n is erroneous\n");
+		return 0;
+
+	}
+
+	n = atoi(stream);
 
 	if (n == 0 || m == 0) { /* isValidNumber allowes zero */
 		free(stream);

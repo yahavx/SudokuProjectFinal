@@ -1,9 +1,7 @@
 /*
  * Game.h:
  * This moudle implements most of the game operations:
- * set, validate, guess, generate, undo, redo, hint, guess_hint, reset.
- *
- * Any supportive function is placed in GameAux.
+ * set, validate, guess, generate, undo, redo, hint, guess_hint, reset, autofill.
  *
  * It also defines the sudoku struct and implementation.
  */

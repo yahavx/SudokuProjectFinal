@@ -1,14 +1,12 @@
 /*
- * Solver.h
+ * Solver.h:
+ * This module verifies the board correction and manages the error status of each cell.
  *
- *  Created on: 21 áôáø× 2019
- *      Author: yahav
+ * In addition, allows the user to apply a solution to a board, as well as finding the number of solutions.
  */
 
 #ifndef SOLVER_H_
 #define SOLVER_H_
-
-#include "Game.h"
 
 /*
  * Checks whether the current configuration of the board is valid - with respect to index (i,j).
@@ -20,18 +18,6 @@ int validConfiguration(SudokuBoard *sudoku, int i, int j);
  * Mark them accordingly.
  */
 void validNeighbours(SudokuBoard* sudoku, int i, int j, int val);
-
-/*
- * Increment the index (i,j), and returns the i of the new index.
- * @param N - board dimension.
- */
-int nextI(int i, int j, int N);
-
-/*
- * Increment the index (*,j), and returns the j of the new index.
- * @param N - board dimension.
- */
-int nextJ(int j, int N);
 
 /*
  * Returns the number of solutions to the board, -1 if the board is erroneous.

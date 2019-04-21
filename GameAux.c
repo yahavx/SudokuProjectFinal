@@ -70,39 +70,7 @@ void markErroneousCells(SudokuBoard *sudoku) {
 	}
 }
 
-int isSolved(SudokuBoard *sudoku) {
-	int i, j, N = sudoku->n * sudoku->m;
 
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < N; j++) {
-			if (getCell(sudoku, i, j)->value == 0) {
-				return 0;
-			}
-		}
-	}
-
-	if (isErroneous(sudoku)) {
-		return 0;
-	}
-
-	return 1;
-}
-
-int isFull(SudokuBoard *sudoku) {
-	int i, j, N = sudoku->n * sudoku->m;
-
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < N; j++) {
-			if (getCell(sudoku, i, j)->value == 0) {
-				return 0;
-			}
-		}
-	}
-
-	return 1;
-}
-
-/* =============== from LPSolver =============== */
 
 int getRandomIndex(int *legals, int i, int j, LPSolution *boardSol,
 		int legalNumbers, double *candidates) {
