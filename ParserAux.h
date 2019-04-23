@@ -3,6 +3,9 @@
  * This module is resposible for receiving input from the user and proccesing it.
  *
  * It also validates the commands are entered in the corrent mode, and that command's parameters are in the correct range.
+ *
+ * All validation functions checks that a command is executed and the correct mode, has the correct number of parameters,
+ * and each is in the corret range. Returns 1 if valid, 0 if not, and prints errors accordingly.
  */
 
 #ifndef PARSERAUX_H_
@@ -17,157 +20,158 @@
 #include "LinkedMovesList.h"
 #include "ParserAux.h"
 
-/*@params - stream- string to chack
- *  N- integer
+/*
  * Returns 1 iff the current token is a number between 0 to N, includes.
- *  @pre : stream !=NULL;
+ * @pre: stream != NULL.
  */
 int isValidNumber(char* stream, int N);
 
-/*@params- stream- string to check
- *  This function gets string and check if represent a valid number. if true return 1. otherwise 0;
- * @pre : stream !=NULL;
+/*
+ * Gets a string and checks if it represents an integer. If true return 1, otherwise 0.
+ * @pre: stream != NULL.
  */
 int isNum(char* stream);
 
-/* @params- stream- string to check
- * This function gets a string.
- * if it is a natural number return the numbrt it is, otherwise return -1;
+/*
+ *
+ * Gets a string and checks if it represents a float. If true return 1, otherwise 0.
+ * @pre: stream != NULL
+ */
+int isFloat(char * stream);
+
+/*
+ * Converts a string to an integer and returns it.
+ * If the string is not an integer, returns -1.
  */
 int getNum(char* string);
 
-/*@params- num- integer to check
- *		 - begginging- int represent lowwer bound of range
- *		 - end- integer reprsent upper bound of range
- * This function gets integer num and two more integers represents the beggining of range the end of it
- * return 1 if num is in the range and 0 otherwise;
+/*
+ * Checks if num is the range [beggining,end]. Returns 1 iff yes.
  */
 int isNumInRange(int num, int beginning, int end);
 
-/*@params - stream- string to chack
- * This function getting buffer that conatains the user input and
- * return the number of arguments that  a command as set,edit,solve, hint, guess. guess_hint etc got from the user;
+/*
+ * Initialize the array by setting all elements to zero.
+ * @params: c - pointer to the array
+ *          N - array size
  */
-int numOfArguments(char* stream);
-
-/*@params - stream- string to chack
- * 		  - path- chars array to assign into
- * This function check if solve command is legal as entered by the user,
- * return 1 and fill path if true, return 0 otherwise and the contant of path is meaningless and should be ignored.
- */
-int checkSolveCommand(char* stream, char *path);
+void initializeArray(char c[], int N);
 
 /*
- * This function check if edit command is valid according to the project instructions.
- * Also, this function create distinction between edit without file name and edit with file name.
- * In case of edit with file name , the function update path to contain the filename. otherwise path's content is meaningless.
- * The function return 1 iff the command structut is valid  according to the project instructions.
+ * Copies a string, char by char.
+ * @params: src - source string
+ * 		    dst - destination string
+ * If one of them is NULL, does nothing.
+ * @pre : length(dst) >= length(src)
  */
-CommandType checkEditCommand(char* stream, char* path);
-
-/*@params - stream- string to chack
- * 		  - path- chars array to assign into
- *This function check if mark errors command is valid as entered by the user, according to the project instructions.
- *Retrun 1 if true and 0 otherwise.
- * In case the command is valid, the gfunction assign X parameter  of the command to the int params array, in params[0] cell.
- */
-int checkMarkErrorsCommand(char* stream, Status mode, int params[3]);
+void safeCopy(char* src, char* dst);
 
 /*
  * Reads from input until the end of the current line.
  */
 void finishTheLine();
 
-/* @params - stream- string to chack
- * 		  - paramsNum - integer represents the number of parameters command should get.
- * This function gets num of params a command should get in paramsNum argument and return 1 if the number of
- * params the command got is correct. otherwise print appropriate error and return 0;
+/*
+ * Returns 1 if stream contains paramsNum tokens.
+ * Used to check if a command has the corrent number of parameters.
+ * If not, prints appropriate error (too many or not enough parameters).
  */
-int checkParamsNumber(char* stream, int paramsNum);
-
-/*@params - stream- stream which is the user's input to check.
- * 		  - mode- represent the current game status (INIT, SOLVE or EDIT).
- * This function check if the bellow detaild commands are legal according to the project instructions. retrun 1 if true and 0 otherwise.
- * commands: redo,undo,validate,print board,reset,num_sulutions
- */
-int checkSeveralCommands(char* stream, Status mode);
-
-/* @params: stream- represent user input that recognized as set commamnd and its arguments.
- * 			mode- the game status (INIT, EDIT or SOLVE).
- * 			params- int array , which will conatin the X Y Z params in cells 0 1 2 of the array,in correspondence.
- * This function check if set command is legal and in the right mode of game and  ha right command structure according to the project
- * instructions.
- * If true, the function update the int params array that concatins
- * the X Y Z params of set command, and return 1.
- * Otherwise return 0. In this case , the set command as entered by the user is illegle and
- * the values params thet the params array contains are meaningless and should be ignored.
- */
-int checkSetCommand(char* stream, int range, Status mode, int params[3]);
-
-/* @parans - stream which represent string to check.
- * This function return 1 if this string can be converted to flout
- * or 0 otherwise
- * @pre: stream!=NULL
- */
-int isFloat(char * stream);
-
-/* @params - stream - stream of input entered by the user
- * 		   - mode- the game status (INIT, EDIT, SOLVE)
- * 		   - threshold - pointer to int variable which the X  parameter of guess X commsnd will be assigne into.
- *This function return 1 if guess command is valid accorging to the priject instructions , which means the commands structure and
- * the board mode is correct, in this case the function also update the threshold variable localy.
- * Otherwise,the function return 0 , and threshold variable is meaningless and shpuld be ignored.
- */
-int checkGuessCommand(char* stream, Status mode, double* threshold);
-
-/* @params - stream - stream of input entered by the user
- * 		   - range- integer represent the max value of cells in row(or column) in the sudokuboard.
- * 		   - mode- the game status (INIT, EDIT, SOLVE)
- * 		   - params- int array , which will conatin the X Y  params in cells 0 1  of the array,in correspondence
- * This function return 1 if generate command is valid according to the project instructions , which means the commands structure and
- * the game mode is correct, in tthis case italso fill in the params array with X Y params of generate command as entered by the user.
- * Otherwise, return 0  and the values in the array are meaningless and should be ignored.
- */
-int checkGenerateCommand(char* stream, int range, Status mode, int params[3]);
-
-/* @params - stream - stream of input entered by the user
- * 		   - range- integer represent the max value of cells in row(or column) in the sudokuboard.
- * 		   - mode- the game status (INIT, EDIT, SOLVE)
- * 		   - params- int array , which will conatin the X Y  params in cells 0 1  of the array,in correspondence.
- * This function return 1 if Hint or guess hint commands are valid according to the project instructions , which means the commands structure and
- * the board mode is correct, also fill in the params array. return 0 otherwise and the values in the array are not informative.
- */
-int checkHint_GuessHint_Commands(char* stream, int range, Status mode,
-		int params[3]);
-
-/* @params - stream - stream of input entered by the user
- * 		   - mode- the game status (INIT, EDIT, SOLVE)
- * This function return 1 if Autofill command is valid according to the project instructions,
- * which means the commands structure and the game mode are correct. Otherwise return 0;
- */
-int checkAutofillCommand(char* stream, Status mode);
-
-/* @params - stream - stream of input entered by the user
- * 		   - mode- the game status (INIT, EDIT, SOLVE)
- * 		   - path- chars array , which will conatin the file name parameter of the command save [fileName].
- * This function return 1 if save command is valid according to the project instructions , which means the commands structure and
- * the board mode is correct. Othewise return 0 .
- */
-int checkSaveCommand(char* stream, Status mode, char path[256]);
-
-/* @params - stream - sorce string
- * 		   - path - destination string
- *  @ pre : length (path)>= length (stream)
- *  This function recives sorce string stream and destination string path and
- *  copy (safely) the contant in stream into path, char by char.
- *  If one of the strings are NULL, do nothing. (will never sent a null poiner to this function)
- */
-void safeCopy(char* stream, char* path);
+int validateParamsNumber(char* stream, int paramsNum);
 
 /*
- * Initialize the array by setting all elements to zero.
- * @param c - pointer to the array of char, N - array size
+ * Checks if stream contains no parameters. Returns 1 if yes, otherwise 0 and prints appropriate error.
+ * @params: mode - the current mode of the game.
+ *          stream - the 2nd token of the command entered by the user.
+ *          command - the checked command
+ * @pre: command is available in Edit and Solve only (redo, undo, validate, print_board, reset or num_solutions).
  */
-void initializeArray(char c[], int N);
+int validateZeroParameters(char* stream, Status mode, CommandType command);
+
+
+/*
+ * Validates solve command. Returns 1 iff command is valid.
+ * @params: path - a pointer to assign the parameter to.
+ *          stream - the 2nd token of the command entered by the user.
+ * If @ret == 0, path should be ignored.
+ */
+int validateSolve(char* stream, char *path);
+
+/*
+ * Validtes edit cocmmand.
+ * Returns EDIT_WITHOUT_FILE_NAME if no parameter supplied, and EDIT_WITH_FILE_NAME i 1 parameter is supplied.
+ * @params: path - a pointer to assign the parameter to.
+ *          stream - the 2nd token of the command entered by the user.
+ * If validation failed, returns ILLEGALY_HANDLED_COMMAND.
+ */
+CommandType validateEdit(char* stream, char* path);
+
+/*
+ * Validates mark errors command. Returns 1 iff command is valid.
+ * @params: mode - the current mode of the game.
+ *          stream - the 2nd token of the command entered by the user.
+ *          params - array to fill with the command parameter (to first slot).
+ * If @ret == 0, params should be ignored.
+ */
+int validateMarkErrors(char* stream, Status mode, int params[3]);
+
+
+/*
+ * Validates set command. Returns 1 iff command is valid.
+  * @params: mode - the current mode of the game.
+ *           stream - the 2nd token of the command entered by the user.
+ *           params - array to fill with the command parameters (in order of appearance).
+ *           range - max legal value for a parameter (i.e. game board dimesnion).
+ * If @ret == 0, params should be ignored.
+ */
+int validateSet(char* stream, int range, Status mode, int params[3]);
+
+
+
+/*
+ * Validates guess command. Returns 1 iff command is valid.
+ * @params: mode - the current mode of the game.
+ *          stream - the 2nd token of the command entered by the user.
+ *          threshold - pointer to store the parameter in.
+ * If @ret == 0, threshold should be ignored.
+ */
+int validateGuess(char* stream, Status mode, double* threshold);
+
+/*
+ * Validates generate command. Returns 1 iff command is valid.
+ * @params: mode - the current mode of the game.
+ *          stream - the 2nd token of the command entered by the user.
+ *          threshold - pointer to store the parameter in.
+ *          range - max legal value for a parameter.
+ * If @ret == 0, params should be ignored.
+ */
+int validateGenerate(char* stream, int range, Status mode, int params[3]);
+
+/*
+ * Validates guess command. Returns 1 iff command is valid.
+ * @params: mode - the current mode of the game.
+ *          stream - the 2nd token of the command entered by the user.
+ *          threshold - pointer to store the parameter in.
+ *          range - max legal value for a parameter.
+ * If @ret == 0, params should be ignored.
+ */
+int validateHintAndGuessHint(char* stream, int range, Status mode,
+		int params[3], CommandType command);
+
+/*
+ * Validates autofill command. Returns 1 iff command is valid.
+ * @params: mode - the current mode of the game.
+ *          stream - the 2nd token of the command entered by the user.
+ */
+int validateAutofill(char* stream, Status mode);
+
+/*
+  * Validates save command. Returns 1 iff command is valid.
+ * @params: mode - the current mode of the game.
+ *          stream - the 2nd token of the command entered by the user.
+ *          threshold - pointer to store the parameter in.
+ * If @ret == 0, dst should be ignored.
+ */
+int validateSave(char* src, Status mode, char path[256]);
+
 
 #endif /* PARSERAUX_H_ */

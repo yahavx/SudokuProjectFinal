@@ -1,9 +1,11 @@
 /*
- * main.c
+ * main.c:
+ * This module runs and manage the sudoku game.
  *
- *  Created on: 21 áôáø× 2019
- *      Author: yahav
+ * General note: all functions treat indices as 0-based.
+ * In addition, in an index (i,j), i represents the row, and j is the column, in all the modules, and also in prints.
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

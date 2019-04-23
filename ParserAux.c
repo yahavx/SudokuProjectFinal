@@ -14,15 +14,29 @@
 #include "LinkedMovesList.h"
 #include "ParserAux.h"
 
+int getIntParams(char *stream, int params[3]);
+
+int expectedNumOfParams(int excepted, int paramsNum, CommandType command,
+		int range);
+
+int argsInStream(char* stream);
+
+/* =============== PUBLIC FUNCTIONS =============== */
+
+void initializeArray(char c[], int N) {
+	int i;
+	for (i = 0; i < N; i++) {
+		c[i] = '\0';
+	}
+}
+
 int isValidNumber(char* stream, int n) {
 	int x;
-	int i = 0;
-	while (stream[i] != '\0') {
-		if (!(stream[i] >= '0' && stream[i] <= '9')) {
-			return 0;
-		}
-		i++;
+
+	if (!isNum(stream)) {
+		return 0;
 	}
+
 	x = atoi(stream);
 	if (x >= 0 && x <= n) {
 		return 1;
@@ -52,116 +66,29 @@ int getNum(char* string) {
 	return -1;
 }
 
+int isFloat(char* stream) {
+	int bol, i;
+	i = 0;
+	bol = 0;
+	while (stream[i] != '\0') {
+		if (!(stream[i] >= '0' && stream[i] <= '9')) {
+			if (stream[i] == '.' && bol == 0) {
+				bol = 1;
+			} else {
+				return 0; /* More than one point, or an invalid character */
+			}
+		}
+
+		i++;
+	}
+	return 1;
+}
+
 int isNumInRange(int num, int beginning, int end) {
 	if (num >= beginning && num <= end) {
 		return 1;
 	}
 	return 0;
-}
-
-int numOfArguments(char* stream) {
-	int cnt = 0;
-
-	/* should not be null at any case because we already  */
-
-	while (stream != NULL) {
-		cnt++;
-
-		stream = strtok(NULL, " \t\r\n");/*moving stream one token forward*/
-
-	}
-
-	return cnt;
-}
-
-void safeCopy(char* stream, char* path) {
-	int i = 0;
-	if (stream == NULL || path == NULL) {
-		return;
-	}
-	while (stream[i] != '\0') {
-		path[i] = stream[i];
-		i++;
-	}
-	path[i] = '\0';
-}
-
-int checkSolveCommand(char* stream, char* path) {
-
-	int cnt;
-	if (stream == NULL) {
-		printError(NOT_ENOUGH_PARAMS);
-		printFormat(SOLVE_COMMAND);
-		return 0;
-	}
-	safeCopy(stream, path);
-	cnt = numOfArguments(stream);
-	if (cnt == 1) {
-		return 1;
-	} else {
-		if (cnt == 0) {
-			printError(NOT_ENOUGH_PARAMS);
-		} else {
-			printError(TOO_MANY_PARAMS);
-		}
-		printFormat(SOLVE_COMMAND);
-		return 0;
-	}
-}
-
-CommandType checkEditCommand(char* stream, char* path) {
-	int cnt;
-
-	if (stream == NULL) {
-		return EDIT_WITHOUT_FILE_NAME;
-	}
-	safeCopy(stream, path);
-	cnt = numOfArguments(stream);
-	if (cnt == 1) {
-		return EDIT_WITH_FILE_NAME;
-
-	} else {
-		printError(TOO_MANY_PARAMS);
-		printFormat(EDIT_WITH_FILE_NAME);
-		return ILLEGALY_HANDLED_COMMAND;
-	}
-
-}
-
-int checkMarkErrorsCommand(char* stream, Status mode, int params[3]) {
-
-	int cnt, wrong_value_for_x, num;
-	wrong_value_for_x = 0;
-
-	if (mode != SOLVE) {
-		printError(AVAILABLE_IN_SOLVE);
-		return 0;
-	}
-
-	if (stream == NULL) {
-		printError(NOT_ENOUGH_PARAMS);
-		printFormat(MARK_ERRORS);
-		return 0;
-	}
-	num= getNum(stream);
-	if (!(num == 0 || num == 1)) {
-		wrong_value_for_x = 1;
-	} else {
-		params[0] = num;
-	}
-
-	cnt = numOfArguments(stream);
-	if (cnt > 1) {
-		printError(TOO_MANY_PARAMS);
-		printFormat(MARK_ERRORS);
-		return 0;
-	}
-	if (wrong_value_for_x) {
-		printError(MARK_ERRORS_INVALID_VALUE);
-		return 0;
-	}
-	return 1;
-
 }
 
 void finishTheLine() {
@@ -174,7 +101,81 @@ void finishTheLine() {
 	}
 }
 
-int checkParamsNumber(char* stream, int paramsNum) {
+void safeCopy(char* src, char* dst) {
+	int i = 0;
+	if (src == NULL || dst == NULL) {
+		return;
+	}
+	while (src[i] != '\0') {
+		dst[i] = src[i];
+		i++;
+	}
+	dst[i] = '\0';
+}
+
+int validateSolve(char* stream, char* path) {
+
+	int paramsNum;
+	if (stream == NULL) {
+		printError(NOT_ENOUGH_PARAMS);
+		printFormat(SOLVE_COMMAND);
+		return 0;
+	}
+	safeCopy(stream, path);
+	paramsNum = argsInStream(stream);
+
+	if (!expectedNumOfParams(1, paramsNum, SOLVE_COMMAND, 0)) {
+		return 0;
+	}
+
+	return 1;
+}
+
+CommandType validateEdit(char* stream, char* path) {
+	int paramsNum;
+
+	if (stream == NULL) {
+		return EDIT_WITHOUT_FILE_NAME;
+	}
+
+	safeCopy(stream, path);
+	paramsNum = argsInStream(stream);
+	if (paramsNum == 1) {
+		return EDIT_WITH_FILE_NAME;
+
+	} else {
+		printError(TOO_MANY_PARAMS);
+		printFormat(EDIT_WITH_FILE_NAME);
+		return ILLEGALY_HANDLED_COMMAND;
+	}
+
+}
+
+int validateMarkErrors(char* stream, Status mode, int params[3]) {
+
+	int count;
+
+	if (mode != SOLVE) {
+		printError(AVAILABLE_IN_SOLVE);
+		return 0;
+	}
+
+	count = getIntParams(stream, params);
+
+	if (!expectedNumOfParams(1, count, MARK_ERRORS, 0)) { /* Incorrect number of parameters */
+		return 0;
+	}
+
+	if (params[0] != 1 && params[0] != 0) {
+		printError(MARK_ERRORS_INVALID_VALUE);
+
+		return 0;
+	}
+
+	return 1;
+}
+
+int validateParamsNumber(char* stream, int paramsNum) {
 	int cnt = 0;
 	while (stream != NULL) {
 		cnt++;
@@ -194,56 +195,35 @@ int checkParamsNumber(char* stream, int paramsNum) {
 	return 0;
 }
 
-int checkSeveralCommands(char* stream, Status mode) {
-	char command[256];
-	safeCopy(stream, command);
+int validateZeroParameters(char* stream, Status mode, CommandType command) {
 	if (mode == INIT) {
 		printError(AVAILABLE_IN_EDIT_AND_SOLVE);
 		return 0;
 	}
-	stream = strtok(NULL, " \t\r\n");
-	if (checkParamsNumber(stream, 0) == 0) {/*print error already handaled*/
-		printf("Command structure : %s\n", command);
+
+	if (!validateParamsNumber(stream, 0)) {/* Incorrect number of parameters */
+		printFormat(command);
 		return 0;
 	}
 	return 1;
 }
 
-int checkSetCommand(char* stream, int range, Status mode, int params[3]) {
-	int num;
-	int count_params = 0;
+int validateSet(char* stream, int range, Status mode, int params[3]) {
+	int paramsNum;
 
 	if (mode == INIT) {
 		printError(AVAILABLE_IN_EDIT_AND_SOLVE);
 		return 0;
 	}
 
-	while (stream != NULL && count_params < 2) {
-		num = getNum(stream);
-		params[count_params] = num - 1;
-		count_params++;
-		stream = strtok(NULL, " \t\r\n");
-	}
+	paramsNum = getIntParams(stream, params);
 
-	if (count_params < 2) {
-		printError(NOT_ENOUGH_PARAMS);
-		printFormatWithRange(SET, range);
+	if (!expectedNumOfParams(3, paramsNum, SET, range)) {
 		return 0;
 	}
 
-	if (stream != NULL) {
-		num = getNum(stream);
-		params[2] = num;
-	} else {
-		printError(NOT_ENOUGH_PARAMS);
-		printFormatWithRange(SET, range);
-		return 0;
-	}
-	stream = strtok(NULL, " \t\r\n");
-	if (checkParamsNumber(stream, 0) == 0) {/*print already*/
-		printFormatWithRange(SET, range);
-		return 0;
-	}
+	params[0]--; /* User enters 1-based indices, change it to be 0-based */
+	params[1]--;
 
 	if (!(isNumInRange(params[0] + 1, 1, range))) {
 		printInvalidParameter(INVALID_X, 1, range);
@@ -251,37 +231,18 @@ int checkSetCommand(char* stream, int range, Status mode, int params[3]) {
 	}
 
 	if (!(isNumInRange(params[1] + 1, 1, range))) {
-		printInvalidParameter(INVALID_Y,1,range);
+		printInvalidParameter(INVALID_Y, 1, range);
 		return 0;
 	}
 	if (!(isNumInRange(params[2], 0, range))) {
-		printInvalidParameter(INVALID_Z,0,range);
+		printInvalidParameter(INVALID_Z, 0, range);
 		return 0;
 	}
 
 	return 1;
-
 }
 
-int isFloat(char* stream) {
-	int bol, i;
-	i = 0;
-	bol = 0;
-	while (stream[i] != '\0') {
-		if (!(stream[i] >= '0' && stream[i] <= '9')) {
-			if (stream[i] == '.' && bol == 0) {
-				bol = 1;
-			} else {
-				return 0;/*or there is more than one point or the char is illegal. */
-			}
-		}
-
-		i++;
-	}
-	return 1;
-}
-
-int checkGuessCommand(char* stream, Status mode, double* threshold) {
+int validateGuess(char* stream, Status mode, double* threshold) {
 	int wrong_value_for_X = 0;
 	double x;
 	if (mode != SOLVE) {
@@ -295,7 +256,7 @@ int checkGuessCommand(char* stream, Status mode, double* threshold) {
 		return 0;
 	}
 
-	if (!isFloat(stream)) {
+	if (!isFloat(stream)) { /* Check if the parameter is a float, and convert to float if yes */
 		wrong_value_for_X = 1;
 	} else {
 		x = atof(stream);
@@ -307,7 +268,7 @@ int checkGuessCommand(char* stream, Status mode, double* threshold) {
 	}
 
 	stream = strtok(NULL, " \t\r\n");
-	if (!checkParamsNumber(stream, 0)) {/*prints*/
+	if (!validateParamsNumber(stream, 0)) { /* Too many parameters */
 		printFormat(GUESS);
 		return 0;
 	}
@@ -319,96 +280,76 @@ int checkGuessCommand(char* stream, Status mode, double* threshold) {
 	return 1;
 }
 
-int checkGenerateCommand(char* stream, int range, Status mode, int params[3]) {
-	int num, count_params;
-	count_params = 0;
+int validateGenerate(char* stream, int range, Status mode, int params[3]) {
+	int paramsNum;
 
 	if (mode != EDIT) {
 		printError(AVAILABLE_IN_EDIT);
 		return 0;
 	}
-	while (stream != NULL && count_params < 2) {
-		num = getNum(stream);
-		params[count_params] = num;
-		count_params++;
-		stream = strtok(NULL, " \t\r\n");
-	}
 
+	paramsNum = getIntParams(stream, params);
 
-	if (count_params < 2) {
-		printError(NOT_ENOUGH_PARAMS);
-		printFormatWithRange(GENERATE,range * range);
+	if (!expectedNumOfParams(2, paramsNum, GENERATE, range * range)) {
 		return 0;
 	}
 
-	if (checkParamsNumber(stream, 0) == 0) {/*prints*/
-		printFormatWithRange(GENERATE, range * range);
-		return 0;
-	}
 	if (!(isNumInRange(params[0], 0, range * range))) {
-		printInvalidParameter(INVALID_X,0,range*range);
+		printInvalidParameter(INVALID_X, 0, range * range);
 		return 0;
 	}
 	if (!(isNumInRange(params[1], 0, range * range))) {
-		printInvalidParameter(INVALID_Y,0, range*range);
+		printInvalidParameter(INVALID_Y, 0, range * range);
 		return 0;
 	}
 
 	return 1;
 }
 
-int checkHint_GuessHint_Commands(char* stream, int range, Status mode,
-		int params[3]) {/*wowrking*/
-	int num, count_params = 0;
+int validateHintAndGuessHint(char* stream, int range, Status mode,
+		int params[3], CommandType command) {
+	int paramsNum;
 
 	if (mode != SOLVE) {
 		printError(AVAILABLE_IN_SOLVE);
 		return 0;
 	}
 
-	while (stream != NULL && count_params < 2) {
-		num = getNum(stream);
-		params[count_params] = num - 1;
-		count_params++;
-		stream = strtok(NULL, " \t\r\n");
+	paramsNum = getIntParams(stream, params);
+
+	if (!expectedNumOfParams(2, paramsNum, command, range)) {
+		return 0;
+
 	}
 
-	if (count_params < 2) {
-		printError(NOT_ENOUGH_PARAMS);
-		printFormatWithRange(GUESS_HINT,range);
-		return 0;
-	}
-
-	if (checkParamsNumber(stream, 0) == 0) {/*prints*/
-		printFormatWithRange(GUESS_HINT,range);
-		return 0;
-	}
+	params[0]--; /* User enters 1-based indices, change it to be 0-based */
+	params[1]--;
 
 	if (!(isNumInRange(params[0] + 1, 1, range))) {
-		printInvalidParameter(INVALID_X,1,range);
+		printInvalidParameter(INVALID_X, 1, range);
 		return 0;
 	}
 	if (!(isNumInRange(params[1] + 1, 1, range))) {
-		printInvalidParameter(INVALID_Y,1,range);
+		printInvalidParameter(INVALID_Y, 1, range);
 		return 0;
 	}
 
 	return 1;
 }
 
-int checkAutofillCommand(char* stream, Status mode) { /*working*/
+int validateAutofill(char* stream, Status mode) { /*working*/
 	if (mode != SOLVE) {
 		printError(AVAILABLE_IN_SOLVE);
 		return 0;
 	}
-	if (checkParamsNumber(stream, 0) == 0) {/*prints*/
+	if (!validateParamsNumber(stream, 0)) { /* Too many parameters */
 		printFormat(AUTOFILL);
 		return 0;
 	}
 	return 1;
 }
 
-int checkSaveCommand(char* stream, Status mode, char path[256]) {/*working*/
+int validateSave(char* stream, Status mode, char path[256]) {/*working*/
 	if (mode == INIT) {
 		printError(AVAILABLE_IN_EDIT_AND_SOLVE);
 		return 0;
@@ -419,17 +360,78 @@ int checkSaveCommand(char* stream, Status mode, char path[256]) {/*working*/
 		return 0;
 	}
 	safeCopy(stream, path);
-	if (checkParamsNumber(stream, 1) == 0) {/*prints*/
+	if (!validateParamsNumber(stream, 1)) {/*prints*/
 		printFormat(SAVE);
 		return 0;
 	}
 	return 1;
 }
 
-void initializeArray(char c[], int N) {
-	int i;
-	for (i = 0; i < N; i++) {
-		c[i] = '\0';
+/* =============== PRIVATE FUNCTIONS =============== */
+
+/*
+ * Checks if excepted number of parameter matches the actual number of parameters supplied by the user.
+ * If yes, returns 1, otherwise returns 0, prints appropriate error and correct command format.
+ *
+ * @params: excepted - number of parameters that a command needs.
+ *          paramsNum - number of parameters received by the user.
+ *          command - command of which format will be printed if needed.
+ *          range - range for format, if needed (if unnecessary, it's ignored).
+ */
+
+int expectedNumOfParams(int excepted, int paramsNum, CommandType command,
+		int range) {
+	if (paramsNum == excepted) {
+		return 1;
 	}
+
+	if (paramsNum < excepted) {
+		printError(NOT_ENOUGH_PARAMS);
+	} else {
+		printError(TOO_MANY_PARAMS);
+	}
+
+	printFormatWithRange(command, range);
+	return 0;
+
+}
+/*
+ * Receives a stream and store its tokens in params, in order (params[0] = first token).
+ * If a token is not a valid integer, puts -1 in its place in params.
+ *
+ * If stream contains less than 3 tokens, any empty slot in params will be set to -2.
+ *
+ * Returns the number of tokens in the stream.
+ */
+int getIntParams(char *stream, int params[3]) {
+	int i = 0, count = 0;
+
+	while (stream != NULL) {
+		params[i++] = getNum(stream);
+		stream = strtok(NULL, " \t\r\n");
+		count++;
+	}
+
+	while (i < 3) { /* Fill the empty array slots with -1 */
+		params[i] = -1;
+		i++;
+	}
+
+	return count;
 }
 
+/*
+ * Receives a stream and returns the number of tokens in the stream.
+ */
+int argsInStream(char* stream) {
+	int cnt = 0;
+
+	while (stream != NULL) {
+		cnt++;
+
+		stream = strtok(NULL, " \t\r\n"); /* Moving stream one token forward */
+
+	}
+
+	return cnt;
+}

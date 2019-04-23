@@ -16,12 +16,18 @@
 /*
  * LPSolution is used to hold the information received from the LP solver.
  * It stores and later allow to receive the assignment for each variable.
- 
+ *
  * Also, for each cell (i,j) with value v which wasn't assigned a variable, it
  * holds the information whether (i,j) wasn't empty, or it was empty but
  * value v was illegal for the cell.
  * 
  * If a change in the board is made after creating it (via the LP solver), the stored information may be no longer relevant.
+ * 
+ * Fields:
+ * - Mapping is an array of StandardLists. The index (i,j) represents the cell (i,j).
+ * If v exists in the StandardList of (i,j), it means there is a variable (i,j,v), and it's index is indexVar (of the relevant node).
+ * - Sol stores the solution from the LP.
+ * - foundSolution is set to 1 if LP found a solution to the board, 0 if there is no solution, and -1 if the LP solver encoutered an error.
  */
 typedef struct {
 	int N;

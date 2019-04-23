@@ -31,6 +31,7 @@ typedef enum {
 	GUESS_INVALID_VALUE,
 	NOT_ENOUGH_EMPTY_CELLS,
 	UNABLE_TO_VERIFY,
+	PUZZLE_GENERATOR_FAILED,
 
 	/* Invalid commands or commands with invalid parameters (i.e. invalid input) */
 	TOO_MANY_PARAMS,

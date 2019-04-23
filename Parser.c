@@ -39,11 +39,10 @@ int assertFopen(FILE *fp) {
 
 Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	char str[257];
-	char* stream;
+	char *stream, *command;
 	char c[260];
 	CommandType cmd;
-	int row_size, n, m;
-	char command_name[256];
+	int row_size, n, m, match = 0;
 	Command* cmdToReturn;
 	char path[256];
 	double threshold;
@@ -96,10 +95,10 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 
 	strcat(c, str);
 	if ((strlen(c) > MAX_COMMAND_LENGTH)
-			&& (c[256] != '\0' && c[256] != '\n')) { /* command contains more than 256 characters */
+			&& (c[256] != '\0' && c[256] != '\n')) { /* Command contains more than 256 characters */
 
 		if (c[256] != '\0' && c[256] != '\n' && c[256] != EOF) {
-			finishTheLine(); /* read until the end of the command*/
+			finishTheLine(); /* Read until the end of the command*/
 		}
 		printError(TOO_LONG);
 		cmdToReturn = createCommand(params, path, COMMAND_TOO_LONG, 0);
@@ -107,208 +106,139 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	}
 
 	stream = strtok(c, " \t\r\n");
-	if (stream == NULL) { /* empty command, skip to the next one, print nothing */
-		cmdToReturn = createCommand(params, path, EMPTY_COMMAND, 0);
-		return cmdToReturn;
+	command = stream;
+	stream = strtok(NULL, " \t\r\n"); /* command holds command name, advance stream to next parameter */
+
+	if (command == NULL) { /* First token is NULL, empty command */
+		return createCommand(params, path, EMPTY_COMMAND, 0);
+
 	}
-	/* solve command*/
-	if (strcmp(stream, "solve") == 0) {
-		stream = strtok(NULL, " \t\r\n");
-		if (checkSolveCommand(stream, path)) { /*working*/
-			cmdToReturn = createCommand(params, path, SOLVE_COMMAND, 0);
-		} else {
-			cmdToReturn = createIllegalCommand();
+
+	if (strcmp(command, "solve") == 0) { /* Solve command */
+		if (validateSolve(stream, path)) {
+			return createCommand(params, path, SOLVE_COMMAND, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "edit") == 0) { /* Edit command */
+		cmd = validateEdit(stream, path);
+		return createCommand(params, path, cmd, 0);
+	}
+
+	if (strcmp(command, "mark_errors") == 0) { /* Mark errors command */
+		if (validateMarkErrors(stream, mode, params)) {
+			return createCommand(params, path, MARK_ERRORS, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "print_board") == 0) { /* Print board command */
+		if (validateZeroParameters(stream, mode, PRINT_BOARD)) {
+			return createCommand(params, path, PRINT_BOARD, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "set") == 0) { /* Set command */
+		if (validateSet(stream, row_size, mode, params)) {
+			return createCommand(params, path, SET, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "validate") == 0) { /*Validate command*/
+		if (validateZeroParameters(stream, mode, VALIDATE)) {
+			return createCommand(params, path, VALIDATE, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "guess") == 0) { /* Guess command */
+		if (validateGuess(stream, mode, &threshold)) {
+			return createCommand(params, path, GUESS, threshold);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "generate") == 0) { /* Generate command */
+		if (validateGenerate(stream, row_size, mode, params)) {
+			return createCommand(params, path, GENERATE, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "undo") == 0) { /* Undo command */
+		if (validateZeroParameters(stream, mode, UNDO)) {
+			return createCommand(params, path, UNDO, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "redo") == 0) { /* Redo command */
+		if (validateZeroParameters(stream, mode, REDO)) {
+			return createCommand(params, path, REDO, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "save") == 0) { /* Save command */
+		if (validateSave(stream, mode, path)) {
+			return createCommand(params, path, SAVE, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "hint") == 0) { /* Hint command */
+		if (validateHintAndGuessHint(stream, row_size, mode, params, HINT)) {
+			return createCommand(params, path, HINT, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "guess_hint") == 0) { /* Guess hint command*/
+		if (validateHintAndGuessHint(stream, row_size, mode, params,
+				GUESS_HINT)) {
+			return createCommand(params, path, GUESS_HINT, 0);
+		}
+		match = 1;
+	}
+
+	if (strcmp(command, "num_solutions") == 0) { /* Num solutions command */
+		if (validateZeroParameters(stream, mode, NUM_SOLUTIONS)) {
+			return createCommand(params, path, NUM_SOLUTIONS, 0);
 
 		}
-		return cmdToReturn;
-	}
-	/*edit command*/
-	if (strcmp(stream, "edit") == 0) {/*to fix, not working !*/
-		stream = strtok(NULL, " \t\r\n");
-		cmd = checkEditCommand(stream, path);
-		cmdToReturn = createCommand(params, path, cmd, 0);
-		return cmdToReturn;
+		match = 1;
 	}
 
-	/*mark errors command*/
-	if (strcmp(stream, "mark_errors") == 0) {
-		stream = strtok(NULL, " \t\r\n");
-		if (checkMarkErrorsCommand(stream, mode, params) == 1) {
-			cmdToReturn = createCommand(params, path, MARK_ERRORS, 0);
-
-		} else {
-			cmdToReturn = createIllegalCommand();
+	if (strcmp(command, "autofill") == 0) { /* Autofill command */
+		if (validateAutofill(stream, mode)) {
+			return createCommand(params, path, AUTOFILL, 0);
 		}
-		return cmdToReturn;
+		match = 1;
 	}
 
-	/*print board command*/
-	if (strcmp(stream, "print_board") == 0) {
-		if (checkSeveralCommands(stream, mode)) {
-			cmdToReturn = createCommand(params, path, PRINT_BOARD, 0);
-		} else {
-			cmdToReturn = createIllegalCommand();
+	if (strcmp(command, "reset") == 0) { /* Reset command */
+		if (validateZeroParameters(stream, mode, RESET)) {
+			return createCommand(params, path, RESET, 0);
 		}
-		return cmdToReturn;
+		match = 1;
 	}
 
-	/*set command */
-	if (strcmp(stream, "set") == 0) {
-		stream = strtok(NULL, " \t\r\n");
-		if (checkSetCommand(stream, row_size, mode, params) == 1) {
-			cmdToReturn = createCommand(params, path, SET, 0);
-
-		} else {
-			cmdToReturn = createIllegalCommand();
+	if (strcmp(command, "exit") == 0) { /* Exit command */
+		if (validateParamsNumber(stream, 0)) {
+			return createCommand(params, path, EXIT, 0);
 		}
-		return cmdToReturn;
+		printFormat(EXIT);
+		match = 1;
 	}
 
-	/*validate command*/
-	if (strcmp(stream, "validate") == 0) {
-
-		if (checkSeveralCommands(stream, mode)) {
-			cmdToReturn = createCommand(params, path, VALIDATE, 0);
-
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
+	if (!match) { /* Command name didn't match any command */
+		printError(INVALID_COMMAND);
 	}
 
-	/*guess command*/
-	if (strcmp(stream, "guess") == 0) {
-		stream = strtok(NULL, " \t\r\n");
-		if (checkGuessCommand(stream, mode, &threshold) == 1) {
-			cmdToReturn = createCommand(params, path, GUESS, threshold);
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/*generate command*/
-	if (strcmp(stream, "generate") == 0) {
-		stream = strtok(NULL, " \t\r\n");
-		if (checkGenerateCommand(stream, row_size, mode, params)) {
-			cmdToReturn = createCommand(params, path, GENERATE, 0);
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/*undo command*/
-	if (strcmp(stream, "undo") == 0) {
-
-		if (checkSeveralCommands(stream, mode)) {
-			cmdToReturn = createCommand(params, path, UNDO, 0);
-
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/*redo command*/
-	if (strcmp(stream, "redo") == 0) {
-
-		if (checkSeveralCommands(stream, mode)) {
-			cmdToReturn = createCommand(params, path, REDO, 0);
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/*save command*/
-	if (strcmp(stream, "save") == 0) {
-		stream = strtok(NULL, " \t\r\n");
-		if (checkSaveCommand(stream, mode, path)) {
-			cmdToReturn = createCommand(params, path, SAVE, 0);
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/* hint command*/
-	if (strcmp(stream, "hint") == 0) {
-		safeCopy(stream, command_name);
-		stream = strtok(NULL, " \t\r\n");
-		if (checkHint_GuessHint_Commands(stream, row_size, mode, params)) {
-			cmdToReturn = createCommand(params, path, HINT, 0);
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/* guess hint command*/
-	if (strcmp(stream, "guess_hint") == 0) {
-		safeCopy(stream, command_name);
-		stream = strtok(NULL, " \t\r\n");
-		if (checkHint_GuessHint_Commands(stream, row_size, mode, params)) {
-			cmdToReturn = createCommand(params, path, GUESS_HINT, 0);
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/* num solutions command*/
-	if (strcmp(stream, "num_solutions") == 0) {
-
-		if (checkSeveralCommands(stream, mode)) {
-			cmdToReturn = createCommand(params, path, NUM_SOLUTIONS, 0);
-
-		} else {
-			cmdToReturn = createIllegalCommand();
-
-		}
-		return cmdToReturn;
-	}
-
-	/*autofill command*/
-	if (strcmp(stream, "autofill") == 0) {
-		stream = strtok(NULL, " \t\r\n");
-		if (checkAutofillCommand(stream, mode)) {
-			cmdToReturn = createCommand(params, path, AUTOFILL, 0);
-		} else {
-
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/*reset command*/
-	if (strcmp(stream, "reset") == 0) {
-
-		if (checkSeveralCommands(stream, mode)) {
-			cmdToReturn = createCommand(params, path, RESET, 0);
-		} else {
-			cmdToReturn = createIllegalCommand();
-		}
-		return cmdToReturn;
-	}
-
-	/*exit command*/
-	if (strcmp(stream, "exit") == 0) {
-		stream = strtok(NULL, " \t\r\n");
-		if (checkParamsNumber(stream, 0) == 0) {
-			printFormat(EXIT);
-			cmdToReturn = createIllegalCommand();
-			return cmdToReturn;
-		} else {
-
-			cmdToReturn = createCommand(params, path, EXIT, 0);
-			return cmdToReturn;
-		}
-	}
-
-	printError(INVALID_COMMAND);
-	cmdToReturn = createCommand(params, path, UNKNOWN_COMMAND, 0);
-	return cmdToReturn;
+	return createIllegalCommand();
 }
 
 /* =============== PRIVATE FUNCTIONS =============== */

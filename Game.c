@@ -13,7 +13,6 @@
 #include "SPBufferset.h"
 #include "LinkedMovesList.h"
 #include "GameAux.h"
-#include "test.h"
 #include "LPSolver.h"
 
 /* =============== PUBLIC FUNCTIONS =============== */
@@ -214,7 +213,7 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 	if (attemptsLeft == 0) {
 		if (debug)
 			printf("no more attempts remaining\n");
-		printf("Error: puzzle generator has failed. Please try again.\n");
+		printError(PUZZLE_GENERATOR_FAILED);
 		destroyBoard(sudokuCopy);
 		return 0;
 	}
@@ -265,7 +264,7 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 				attemptsLeft - 1, 1000 - attemptsLeft + 1);
 
 	addChangesToList(sudoku, originalSudoku, l); /* Update moves list */
-	free(originalSudoku);
+	destroyBoard(originalSudoku);
 	return 1;
 }
 

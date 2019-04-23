@@ -345,6 +345,10 @@ void printError(Error errorType) {
 	if (errorType == UNABLE_TO_VERIFY) {
 		printf("Unable to verify board. Saving failed.\n");
 	}
+
+	if (errorType == PUZZLE_GENERATOR_FAILED){
+		printf("puzzle generator has failed. Please try again.\n");
+	}
 	/* Errors releated to invalid input (wrong commands or parameters) */
 
 	if (errorType == TOO_MANY_PARAMS) {

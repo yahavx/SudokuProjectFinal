@@ -412,9 +412,41 @@ void LPSolTest() {
 
 	exit(0);
 }
+
+int getIntParametersTest(char *stream, int params[3]){
+	int i = 0, count = 0;
+
+	while (stream != NULL){
+		printf("Stream [%d]: %s\n ",i,stream);
+		params[i++] = getNum(stream);
+		stream = strtok(NULL, " \t\r\n");
+		count++;
+	}
+
+	while (i < 3){ /* Fill the empty array slots with -1 */
+		params[i] = -1;
+		i++;
+	}
+
+	return count;
+}
+void tokens(){
+	char yosi[1024] = "bla 429 4. 4204";
+	int c;
+	char *stream = strtok(yosi, " \t\r\n");
+	int parameters[3];
+	printf("Stream 1: %s\n",stream);
+	stream = strtok(NULL, " \t\r\n");
+	c = getIntParametersTest(stream,parameters);
+	printf("Stream: %s\n",stream);
+	printf("Params: %d %d %d\n", parameters[0], parameters[1], parameters[2]);
+	printf("Tokens: %d\n", c);
+	exit(0);
+}
 int test() {
 	SudokuBoard *sudoku = initializeBoard(3, 3);
 	destroyBoard(sudoku);
+	tokens();
 	LPSolTest();
 	gameTest();
 	exit(0);
