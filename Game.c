@@ -53,7 +53,7 @@ int validate(SudokuBoard *sudoku) {
 
 int guess(SudokuBoard *sudoku, double threshold, List *l) {
 	int N = sudoku->n * sudoku->m, legalNumbers, randomIndex;
-	int debug = 0, i, j, k;
+	int i, j;
 	double *candidates;
 	LPSolution *boardSol;
 	int *legals;
@@ -81,27 +81,14 @@ int guess(SudokuBoard *sudoku, double threshold, List *l) {
 		for (j = 0; j < N; j++) {
 
 			if (getVariableAssignment(boardSol, i, j, 1) == -1) { /* index (i,j) already has a value */
-				if (debug)
-					printf("Cell (%d,%d) already contains a number\n", i, j);
 				continue;
 			}
 
 			legalNumbers = getLegalMovesGuess(sudoku, i, j, legals, boardSol,
-					threshold); /* edits legals */
+					threshold); /* Edits legals */
 
 			if (legalNumbers == 0) {
-				if (debug)
-					printf("No legal numbers for cell (%d,%d)\n", i, j);
 				continue;
-			}
-
-			if (debug) {
-				printf("Legal numbers for cell (%d,%d):", i, j);
-				for (k = 0; k < legalNumbers; k++) {
-					printf(" %d(%.2f)", legals[k],
-							getVariableAssignment(boardSol, i, j, legals[k]));
-				}
-				printf("\n");
 			}
 
 			randomIndex = getRandomIndex(legals, i, j, boardSol, legalNumbers,
@@ -124,7 +111,6 @@ int guess(SudokuBoard *sudoku, double threshold, List *l) {
 int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 	int i, j, N, chosenCells, attemptsLeft = 1000, emptyCells;
 	int *legals, legalNumbers, randomIndex;
-	int debug = 0, k;
 	SudokuBoard *sudokuCopy, *originalSudoku;
 
 	emptyCells = emptyCellsNum(sudoku);
@@ -148,17 +134,11 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 	assertMalloc((void*) legals);
 	sudokuCopy = initializeBoard(sudoku->n, sudoku->m);
 
-	if (debug) {
-		copy(sudoku, sudokuCopy);
-	}
 	chosenCells = 0;
 
 	while (attemptsLeft > 0) {
 		chosenCells = 0;
 		copy(sudoku, sudokuCopy); /* Revert board to it's original state */
-
-		if (debug)
-			printf("%d attempts left\n", attemptsLeft);
 
 		while (chosenCells < X) {
 
@@ -166,55 +146,33 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 			j = rand() % N;
 
 			if (getCell(sudokuCopy, i, j)->value != 0) { /* Cell already has a value */
-				if (debug)
-					printf("(%d,%d) already has a value\n", i, j);
 				continue;
 			}
 
 			legalNumbers = getLegalMoves(sudokuCopy, i, j, legals);
 
 			if (legalNumbers == 0) {
-				if (debug)
-					printf("No legal numbers for (%d,%d), restart...\n", i, j);
 				break;
 			}
 
-			if (debug) {
-				printf("Legal numbers for (%d,%d):", i, j);
-				for (k = 0; k < legalNumbers; k++) {
-					printf(" %d", legals[k]);
-				}
-			}
-
 			randomIndex = rand() % legalNumbers;
-
-			if (debug)
-				printf(", chose: %d\n", legals[randomIndex]);
-
 			getCell(sudokuCopy, i, j)->value = legals[randomIndex];
 			chosenCells++;
 		}
 
 		if (chosenCells == X) {
 			if (validate(sudokuCopy)) {
-				if (debug)
-					printf("board is valid\n");
-				else
-					printf("board is invalid. restart...\n");
 				break;
 			}
 
 		}
 		attemptsLeft--;
-		if (debug)
-			printf("\n");
+		printBoard(sudokuCopy,0,0);
 	}
 
 	free(legals);
 
 	if (attemptsLeft == 0) {
-		if (debug)
-			printf("no more attempts remaining\n");
 		printError(PUZZLE_GENERATOR_FAILED);
 		destroyBoard(sudokuCopy);
 		return 0;
@@ -223,47 +181,24 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 	copy(sudokuCopy, sudoku);
 	destroyBoard(sudokuCopy);
 
-	if (debug) {
-		printf("Board after assigning X values:\n");
-		printBoard(sudoku, SOLVE, 1);
-		printf("\n");
-	}
+	getSolution(sudoku); /* Apply solution to sudoku */
 
-	getSolution(sudoku);
-
-	if (debug) {
-		printf("Solution:\n");
-		printBoard(sudoku, SOLVE, 1);
-	}
 	fixCells(sudoku, 0); /* Unfix all values */
 
 	chosenCells = 0;
-	if (debug)
-		printf("choosing cells to keep\n");
 
 	while (chosenCells < Y) {
 
 		i = rand() % N;
 		j = rand() % N;
 
-		if (debug)
-			printf("random: (%d,%d)", i, j);
-
-		if (getCell(sudoku, i, j)->fixed == 0) {
+		if (getCell(sudoku, i, j)->fixed == 0) { /* Not chosen yet (using fix as choose flags) */
 			getCell(sudoku, i, j)->fixed = 1;
 			chosenCells++;
-			if (debug) {
-				printf(" cell is chosen");
-			}
 		}
-		if (debug)
-			printf("\n");
 	}
-	clearUnfixedCells(sudoku);
-	fixCells(sudoku, 0);
-	if (debug)
-		printf("%d attempts remaining (took %d attempts to generate)\n",
-				attemptsLeft - 1, 1000 - attemptsLeft + 1);
+	clearUnfixedCells(sudoku); /* Remove all unchosen cells */
+	fixCells(sudoku, 0); /* Unfix cells (doesn't really matter) */
 
 	addChangesToList(sudoku, originalSudoku, l); /* Update moves list */
 	destroyBoard(originalSudoku);

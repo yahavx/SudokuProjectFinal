@@ -137,7 +137,7 @@ void printCellUpdate(CommandType command, int i, int j, int oldVal, int newVal) 
 	}
 
 	if (command == GUESS) {
-		printf("Guess: cell (%d,%d) set to %d.\n", i, j, oldVal);
+		printf("Guess: cell (%d,%d) set to %d.\n", i, j, newVal);
 	}
 
 	if (command == REDO) {
