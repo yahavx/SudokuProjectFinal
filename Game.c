@@ -199,6 +199,8 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 			if (validate(sudokuCopy)) {
 				if (debug)
 					printf("board is valid\n");
+				else
+					printf("board is invalid. restart...\n");
 				break;
 			}
 
