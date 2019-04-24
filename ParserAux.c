@@ -406,15 +406,22 @@ int expectedNumOfParams(int excepted, int paramsNum, CommandType command,
 int getIntParams(char *stream, int params[3]) {
 	int i = 0, count = 0;
 
-	while (stream != NULL) {
-		params[i++] = getNum(stream);
-		stream = strtok(NULL, " \t\r\n");
+	while (stream != NULL && i<3) {
+		params[i] = getNum(stream);
+		i++;
 		count++;
+		stream = strtok(NULL, " \t\r\n");
+
 	}
 
 	while (i < 3) { /* Fill the empty array slots with -1 */
 		params[i] = -1;
 		i++;
+	}
+
+	while(stream!= NULL){ /* Count extra parameters if exists */
+		count++;
+		stream = strtok(NULL, " \t\r\n");
 	}
 
 	return count;

@@ -42,7 +42,7 @@ void fixCells(SudokuBoard* sudoku, int fixed);
 void markErroneousCells(SudokuBoard *sudoku);
 
 
-/* =========== Supportive functions for game =========== */
+/* =========== Help functions for game modul =========== */
 
 /*
  * Draw a random index, based on probabailies.

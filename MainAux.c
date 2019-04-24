@@ -11,6 +11,18 @@
 #include "MainAux.h"
 #include "GameAux.h"
 
+#define RED       "\x1B[31m"
+#define GREEN     "\x1B[32m"
+#define YELLOW    "\x1B[33m"
+#define BLUE      "\x1B[34m"
+#define MAGENTA   "\x1B[35m"
+#define CYN       "\x1B[36m"
+#define WHITE     "\x1B[37m"
+#define BLACK     "\x1B[0m"
+
+
+
+
 void initCell(Cell *c, int data);
 
 int isFull(SudokuBoard *sudoku);
@@ -157,7 +169,7 @@ void printFormat(CommandType command) {
 
 void printFormatWithRange(CommandType command, int range) {
 
-	printf("Command structure: ");
+	printf(BLUE "Command structure: " BLACK);
 	if (command == SOLVE_COMMAND) {
 		printf("solve X\n");
 		printf("X includes a full or relative path to the file.\n");
@@ -182,7 +194,7 @@ void printFormatWithRange(CommandType command, int range) {
 	if (command == SET) {
 		printf("set X Y Z\n");
 		printf(
-				"X and Y are integers between 1 to %d, Z is an integer from 0 to %d.\n",
+				"X and Y are integers between 1 to %d, Z is an integer between 0 to %d.\n",
 				range, range);
 	}
 
@@ -261,7 +273,7 @@ void printInstructionWithParam(CommandType command, int param) {
 void printInstruction(Instruction instType) {
 
 	if (instType == WELCOME) {
-		printf("Welcome to the sudoku program!\n");
+		printf(MAGENTA "Welcome to the sudoku program!\n" BLACK);
 	}
 
 	if (instType == ENTER_COMMAND) {
@@ -269,23 +281,23 @@ void printInstruction(Instruction instType) {
 	}
 
 	if (instType == GAME_SAVED) {
-		printf("Game saved successfully.\n");
+		printf(GREEN "Game was saved successfully.\n" BLACK);
 	}
 
 	if (instType == SOLVEABLE) {
-		printf("Board is solveable.\n");
+		printf(GREEN "Board is solveable.\n" BLACK);
 	}
 
 	if (instType == UNSOLVEABLE) {
-		printf("Board is unsolveable.\n");
+		printf(RED "Board is unsolveable.\n" BLACK);
 	}
 
 	if (instType == EXITING) {
-		printf("Hope you enjoyed the game! Exiting...\n");
+		printf(MAGENTA "Hope you enjoyed the game!\nExiting...\n " BLACK);
 	}
 
 	if (instType == WIN) {
-		printf("Congratulations! You solved the puzzle.\n");
+		printf(MAGENTA "Congratulations! You solved the puzzle.\n" BLACK);
 	}
 
 	if (instType == FAKE_WIN) {
@@ -296,7 +308,7 @@ void printInstruction(Instruction instType) {
 }
 
 void printError(Error errorType) {
-	printf("Error: ");
+	printf(RED "Error: " BLACK);
 
 	/* Errors releated to legal commands (i.e. valid input) */
 
@@ -379,7 +391,7 @@ void printError(Error errorType) {
 	}
 
 	if (errorType == WRONG_PATH) {
-		printf("invalid path.");
+		printf("invalid path.\n");
 	}
 
 	/* System errors */
@@ -389,11 +401,11 @@ void printError(Error errorType) {
 	}
 
 	if (errorType == FGET_FAILED) {
-		printf("fgets has failed. Terminating the program...\n");
+		printf("fgets was failed. Terminating the program...\n");
 	}
 
 	if (errorType == MALLOC_FAILED) {
-		printf("malloc has failed. Terminating the program...\n");
+		printf("malloc was failed. Terminating the program...\n");
 	}
 
 	if (errorType == GUROBI_FAILED) {
@@ -404,7 +416,7 @@ void printError(Error errorType) {
 
 void printInvalidParameter(Error errorType, int start, int end) {
 
-	printf("Error: ");
+	printf(RED "Error: " BLACK);
 
 	if (errorType == INVALID_X) {
 		printf(

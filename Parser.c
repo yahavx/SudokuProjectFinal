@@ -15,6 +15,7 @@
 #include "LinkedMovesList.h"
 
 #define  MAX_COMMAND_LENGTH  256
+#define  MAX_PARAMS_NUMBER  3
 
 Command* createIllegalCommand();
 
@@ -38,16 +39,15 @@ int assertFopen(FILE *fp) {
 }
 
 Command* parseInput(SudokuBoard* sudoku, Status mode) {
-	char str[257];
+	char str[MAX_COMMAND_LENGTH+1];
 	char *stream, *command;
-	char c[260];
+	char c[MAX_COMMAND_LENGTH+4];
 	CommandType cmd;
-	int row_size, n, m, match = 0;
-	Command* cmdToReturn;
-	char path[256];
+	int row_size, n, m, match;
+	char path[MAX_COMMAND_LENGTH];
 	double threshold;
-	int params[3] = { 0 };
-
+	int params[MAX_PARAMS_NUMBER] = { 0 };
+	match = 0;
 	if (sudoku != NULL) {
 		n = sudoku->n;
 		m = sudoku->m;
@@ -59,50 +59,44 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 	row_size = n * m;
 
 	/*initialization of arrays*/
-	initializeArray(c, 259);
-	initializeArray(str, 255);
-	initializeArray(path, 256);
+	initializeArray(c, MAX_COMMAND_LENGTH+4);
+	initializeArray(str,MAX_COMMAND_LENGTH+1);
+	initializeArray(path, MAX_COMMAND_LENGTH);
 
 	if ((c[0] = fgetc(stdin)) == EOF) { /*we reached EOF therefore we will finish according to the forum */
 		assertFget();
-		cmdToReturn = createCommand(params, path, EXIT, 0);
-		return cmdToReturn;
+		return createCommand(params, path, EXIT, 0);
 	}
 
 	if (c[0] == '\n') {
-		cmdToReturn = createCommand(params, path, EMPTY_COMMAND, 0);
-		return cmdToReturn; /* empty command, skip to the next one, print nothing */
+		return createCommand(params, path, EMPTY_COMMAND, 0); /* empty command, skip to the next one, print nothing */
 	}
 
 	c[1] = fgetc(stdin);
 	assertFget();
 	if (c[0] == '\r' && c[1] == '\n') {
-		cmdToReturn = createCommand(params, path, EMPTY_COMMAND, 0);
-		return cmdToReturn; /* empty command, skip to the next one, print nothing */
+		return createCommand(params, path, EMPTY_COMMAND, 0); /* empty command, skip to the next one, print nothing */
 	}
 
 	if (c[1] == '\n') { /*handaling the case of command which is shorter than 2 chars but not empty command */
 		if (c[0] != ' ' && c[0] != '\t' && c[0] != '\n' && c[0] != '\v'
 				&& c[0] != '\f' && c[0] != 'r') {
 			printError(INVALID_COMMAND);
-			cmdToReturn = createCommand(params, path, UNKNOWN_COMMAND, 0);
-			return cmdToReturn;
+			return createIllegalCommand();
 		}
 	}
 
-	fgets(str, 256, stdin);
+	fgets(str, MAX_COMMAND_LENGTH, stdin);
 	assertFget();
 
 	strcat(c, str);
 	if ((strlen(c) > MAX_COMMAND_LENGTH)
-			&& (c[256] != '\0' && c[256] != '\n')) { /* Command contains more than 256 characters */
+			&& (c[MAX_COMMAND_LENGTH] != '\0' && c[MAX_COMMAND_LENGTH] != '\n'&& c[MAX_COMMAND_LENGTH] != EOF)) { /* Command contains more than 256 characters */
 
-		if (c[256] != '\0' && c[256] != '\n' && c[256] != EOF) {
-			finishTheLine(); /* Read until the end of the command*/
-		}
+
+		finishTheLine(); /* Read until the end of the command*/
 		printError(TOO_LONG);
-		cmdToReturn = createCommand(params, path, COMMAND_TOO_LONG, 0);
-		return cmdToReturn;
+		return createCommand(params, path, COMMAND_TOO_LONG, 0);
 	}
 
 	stream = strtok(c, " \t\r\n");

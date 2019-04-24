@@ -56,7 +56,7 @@ typedef enum {
  */
 typedef enum {
 	WIN,
-	FAKE_WIN,
+	FAKE_WIN,/*Happen when user loads already solved board*/
 	SOLVEABLE,
 	UNSOLVEABLE,
 	WELCOME,
@@ -71,11 +71,14 @@ typedef enum {
  * Defines game commands and invalid commands.
  */
 typedef enum {
+
+	/*Illegal comands:*/
 	COMMAND_TOO_LONG,
-	UNKNOWN_COMMAND,
 	ILLEGALY_HANDLED_COMMAND,
 	EMPTY_COMMAND,
-	SOLVE_COMMAND, /* List of commands starts here */
+
+	/*Legal commands :*/
+	SOLVE_COMMAND,
 	EDIT_WITH_FILE_NAME,
 	EDIT_WITHOUT_FILE_NAME,
 	MARK_ERRORS,
@@ -97,13 +100,13 @@ typedef enum {
 
 
 /*
- * Checks if malloc memory allocation failed. terminates the program and prints a message if indeed.
+ * Checks if  memory allocation by malloc was failed. Terminates the program and prints a message if indeed.
  * @param pointer - the pointer which a malloc operation was perfromed on
  */
 void assertMalloc(void* pointer);
 
 /*
- * Creates a new sudokuBoard, allocate space to all fields, and set all values to zero.
+ * Creates a new sudokuBoard, allocates space to all fields, and set all values to zero.
  */
 SudokuBoard* initializeBoard(int n, int m);
 
@@ -113,7 +116,8 @@ SudokuBoard* initializeBoard(int n, int m);
 void destroyBoard(SudokuBoard* sudoku);
 
 /*
- * Returns a deep clone of sudoku.
+ * This function preforms deep clone of sudokuBoard object.
+ * It returns a pointer to the copy it created.
  */
 SudokuBoard* clone(SudokuBoard* sudoku);
 

@@ -61,7 +61,6 @@ void validNeighbours(SudokuBoard* sudoku, int i, int j, int val) {
 	N = n * m;
 
 	if (i == -1 || j == -1) {
-		printf("Warning! sentinel sent to validNeighbours.\n");
 		return;
 	}
 
@@ -175,7 +174,7 @@ int findNumberOfSolutions(SudokuBoard* sudoku) {
 
 			if (i == N - 1 && j == N - 1) { /* found a legal value to the last cell in the board */
 				solutionsCount++; /* increment solutions counter, and backtrack */
-				/*printBoard(sudokuCopy);*/
+
 				getCell(sudokuCopy, i, j)->value = 0;
 
 				popAndUpdate(stk, &i, &j, &lastUsed);
@@ -230,7 +229,7 @@ void getSolution(SudokuBoard *sudoku) {
 /* =============== PRIVATE FUNCTIONS =============== */
 
 /*
- * Increment the index (i,j), and returns the i of the new index.
+ * Increment the index (i,*), and returns the i of the new index.
  * @param N - board dimension.
  */
 int nextI(int i, int j, int N) {

@@ -167,7 +167,7 @@ int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
 
 		}
 		attemptsLeft--;
-		printBoard(sudokuCopy,0,0);
+
 	}
 
 	free(legals);

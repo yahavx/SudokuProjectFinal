@@ -28,21 +28,17 @@ int main() {
 	srand(time(NULL)); /* For functions that base on randomization */
 	SP_BUFF_SET()
 
-		/*destroyList(movesList);
-		 test();*/
-
 	printInstruction(WELCOME);
 
 	while (!exit) {
 		printInstruction(ENTER_COMMAND);
 		c = parseInput(sudoku, mode);
-		/*printf(
+		printf(
 		 "x : %d , y: %d , z : %d , threshold : %f, cmd : %d , path : %s \n",
 		 c->params[0], c->params[1], c->params[2], c->threshold,
-		 c->command, c->path);*/
+		 c->command, c->path); /*debug - to remove !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!!!!!!*/
 		switch (c->command) { /* c.command is command type */
 		case COMMAND_TOO_LONG:
-		case UNKNOWN_COMMAND:
 		case ILLEGALY_HANDLED_COMMAND:
 		case EMPTY_COMMAND:
 			break; /* Appropriate errors/instructions printed through parser */
@@ -63,12 +59,17 @@ int main() {
 			break;
 
 		case EDIT_WITH_FILE_NAME:
-		case EDIT_WITHOUT_FILE_NAME:
-			if (c->command == EDIT_WITH_FILE_NAME) {
-				sudoku = load(sudoku, c->path, &loaded);
-			} else { /* Edit without file name */
-				sudoku = load(sudoku, NULL, &loaded);
+			sudoku = load(sudoku, c->path, &loaded);
+
+			if (loaded) { /* Load was successful */
+				mode = EDIT;
+				resetList(movesList); /* clear moves list */
+				print = 1;
 			}
+			break;
+
+		case EDIT_WITHOUT_FILE_NAME:
+			sudoku = load(sudoku, NULL, &loaded);
 
 			if (loaded) { /* Load was successful */
 				mode = EDIT;
