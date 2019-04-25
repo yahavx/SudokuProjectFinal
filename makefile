@@ -6,7 +6,7 @@ GUROBI_COMP = -I/usr/local/lib/gurobi563/include
 GUROBI_LIB = -L/usr/local/lib/gurobi563/lib -lgurobi56
 
 $(EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@
+	$(CC) $(OBJS) $(GUROBI_LIB) -o $@ -lm
 main.o: main.c MainAux.h Game.h Solver.h Parser.h SPBufferset.h FileHandle.h
 	$(CC) $(COMP_FLAG) -c $*.c	
 Game.o: Game.c MainAux.h Solver.h Game.h SPBufferset.h LinkedMovesList.h ParserAux.h GameAux.h FileHandle.h
@@ -28,9 +28,7 @@ ParserAux.o: ParserAux.c Game.h MainAux.h Parser.h Solver.h LinkedMovesList.h Pa
 FileHandle.o: FileHandle.c MainAux.h ParserAux.h GameAux.h LPSolver.h
 	$(CC) $(COMP_FLAG) -c $*.c
 StandardLinkedList.o: StandardLinkedList.c StandardLinkedList.h MainAux.h
-
-$(EXEC): $(OBJS)
-	$(CC) $(OBJS) $(GUROBI_LIB) -o $@ -lm
+	$(CC) $(COMP_FLAG) -c $*.c
 LPSolver.o: LPSolver.c Game.h Solver.h GameAux.h MainAux.h StandardLinkedList.h
 	$(CC) $(COMP_FLAG) $(GUROBI_COMP) -c $*.c
 clean:
