@@ -23,7 +23,7 @@ int main() {
 	SudokuBoard *sudoku = NULL;
 	Status mode = INIT;
 	Command *c;
-	CommandType lastCommand;
+	CommandType lastCommand =ILLEGALY_HANDLED_COMMAND ;
 	int markErrors = 1, temp, print = 0, exit = 0;
 	List *movesList = createNewList();
 	int loaded;
