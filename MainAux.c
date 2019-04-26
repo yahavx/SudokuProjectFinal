@@ -265,7 +265,7 @@ void printInstruction(Instruction instType) {
 	}
 
 	if (instType == ENTER_COMMAND) {
-		printf("Please enter a command: ");
+		printf("Please enter a command:\n");
 	}
 
 	if (instType == GAME_SAVED) {
