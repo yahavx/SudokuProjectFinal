@@ -23,6 +23,7 @@ int main() {
 	SudokuBoard *sudoku = NULL;
 	Status mode = INIT;
 	Command *c;
+	CommandType lastCommand;
 	int markErrors = 1, temp, print = 0, exit = 0;
 	List *movesList = createNewList();
 	int loaded;
@@ -32,7 +33,9 @@ int main() {
 	printInstruction(WELCOME);
 
 	while (!exit) {
-		printInstruction(ENTER_COMMAND);
+		if (lastCommand != EMPTY_COMMAND){
+			printInstruction(ENTER_COMMAND);
+		}
 		c = parseInput(sudoku, mode);
 
 		switch (c->command) { /* c.command is command type */
@@ -165,6 +168,8 @@ int main() {
 			exit = 1;
 			break;
 		}
+
+		lastCommand = c->command;
 		free(c);
 		if (print) {
 			printBoard(sudoku, mode, markErrors);
