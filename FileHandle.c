@@ -9,6 +9,7 @@
 #include "MainAux.h"
 #include "ParserAux.h"
 #include "GameAux.h"
+#include "Parser.h"
 
 #define MAX_M 5
 #define MAX_N 5
@@ -133,6 +134,7 @@ int longestWord(FILE *input) {
 	int c, length = 0;
 	int longest = 0;
 	while ((c = fgetc(input)) != -1) {
+		assertFget();
 		if (!isspace(c)) {
 			length++;
 		} else {
