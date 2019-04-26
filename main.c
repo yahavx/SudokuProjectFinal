@@ -3,7 +3,9 @@
  * This module runs and manage the sudoku game.
  *
  * General note: all functions treat indices as 0-based.
- * In addition, in an index (i,j), i represents the row, and j is the column, in all the modules, and also in prints.
+ *
+ * In addition, we treat an index (i,j) as row and column respectively (not vice versa).
+ * This assumption applies to all functions and documentations, only the interaction with the user is an exception (i.e. in I/O the first parameter indicates the column).
  */
 
 #include <stdio.h>
@@ -14,7 +16,6 @@
 #include "Parser.h"
 #include "GameAux.h"
 #include "Solver.h"
-#include "test.h"
 #include "SPBufferset.h"
 #include "FileHandle.h"
 
@@ -33,10 +34,7 @@ int main() {
 	while (!exit) {
 		printInstruction(ENTER_COMMAND);
 		c = parseInput(sudoku, mode);
-		printf(
-		 "x : %d , y: %d , z : %d , threshold : %f, cmd : %d , path : %s \n",
-		 c->params[0], c->params[1], c->params[2], c->threshold,
-		 c->command, c->path); /*debug - to remove !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!!!!!!*/
+
 		switch (c->command) { /* c.command is command type */
 		case COMMAND_TOO_LONG:
 		case ILLEGALY_HANDLED_COMMAND:
@@ -90,9 +88,10 @@ int main() {
 
 		case SET:
 			print = set(sudoku, c->params[1], c->params[0], c->params[2], mode,
-					movesList);
+					movesList); /* 'set' assumes the first parameter is row, so need to swap */
 			if (print) { /* The set operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
+					printInstruction(LOAD_PUZZLE);
 					mode = INIT;
 				}
 			}
@@ -111,6 +110,7 @@ int main() {
 			print = guess(sudoku, c->threshold, movesList);
 			if (print) { /* The guess operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
+					printInstruction(LOAD_PUZZLE);
 					mode = INIT;
 				}
 			}
@@ -151,6 +151,7 @@ int main() {
 			print = autofill(sudoku, movesList);
 			if (print) { /* The autofill operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
+					printInstruction(LOAD_PUZZLE);
 					mode = INIT;
 				}
 			}

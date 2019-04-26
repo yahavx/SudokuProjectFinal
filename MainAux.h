@@ -39,7 +39,6 @@ typedef enum {
 	AVAILABLE_IN_EDIT_AND_SOLVE,
 	AVAILABLE_IN_EDIT,
 	AVAILABLE_IN_SOLVE,
-	WRONG_RANGE_OF_PARAM_VALUE,/*need to add a print commAnd*/
 	TOO_LONG,
 	WRONG_PATH,
 	INVALID_COMMAND,
@@ -56,15 +55,17 @@ typedef enum {
  */
 typedef enum {
 	WIN,
-	FAKE_WIN,/*Happen when user loads already solved board*/
+	FAKE_WIN,/* Happens when user loads an already solved board in solve mode */
 	SOLVEABLE,
 	UNSOLVEABLE,
+	LOAD_PUZZLE,
 	WELCOME,
 	EXITING,
 	ENTER_COMMAND,
 	GAME_SAVED,
 	NUM_OF_SOLUTIONS,
-	MARK_ERRORS_SET
+	MARK_ERRORS_SET,
+	NO_CHANGE
 } Instruction;
 
 /*
@@ -72,12 +73,12 @@ typedef enum {
  */
 typedef enum {
 
-	/*Illegal comands:*/
+	/* Illegal comands */
 	COMMAND_TOO_LONG,
 	ILLEGALY_HANDLED_COMMAND,
 	EMPTY_COMMAND,
 
-	/*Legal commands :*/
+	/* Legal commands */
 	SOLVE_COMMAND,
 	EDIT_WITH_FILE_NAME,
 	EDIT_WITHOUT_FILE_NAME,
@@ -116,8 +117,8 @@ SudokuBoard* initializeBoard(int n, int m);
 void destroyBoard(SudokuBoard* sudoku);
 
 /*
- * This function preforms deep clone of sudokuBoard object.
- * It returns a pointer to the copy it created.
+ * Performs deep clone of a SudokuBoard sturct.
+ * Returns a pointer to the clone.
  */
 SudokuBoard* clone(SudokuBoard* sudoku);
 

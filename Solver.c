@@ -60,7 +60,7 @@ void validNeighbours(SudokuBoard* sudoku, int i, int j, int val) {
 	m = sudoku->m;
 	N = n * m;
 
-	if (i == -1 || j == -1) {
+	if (i == -1 || j == -1) { /* not supposed to happen */
 		return;
 	}
 
@@ -229,7 +229,7 @@ void getSolution(SudokuBoard *sudoku) {
 /* =============== PRIVATE FUNCTIONS =============== */
 
 /*
- * Increment the index (i,*), and returns the i of the new index.
+ * Increment the index (i,j), and returns the i of the new index.
  * @param N - board dimension.
  */
 int nextI(int i, int j, int N) {

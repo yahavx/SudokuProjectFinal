@@ -11,18 +11,6 @@
 #include "MainAux.h"
 #include "GameAux.h"
 
-#define RED       "\x1B[31m"
-#define GREEN     "\x1B[32m"
-#define YELLOW    "\x1B[33m"
-#define BLUE      "\x1B[34m"
-#define MAGENTA   "\x1B[35m"
-#define CYN       "\x1B[36m"
-#define WHITE     "\x1B[37m"
-#define BLACK     "\x1B[0m"
-
-
-
-
 void initCell(Cell *c, int data);
 
 int isFull(SudokuBoard *sudoku);
@@ -145,20 +133,20 @@ void printCellUpdate(CommandType command, int i, int j, int oldVal, int newVal) 
 	j++; /* Change indices to be 1-based */
 
 	if (command == AUTOFILL) {
-		printf("Autofill: cell (%d,%d) set to %d.\n", i, j, newVal);
+		printf("Autofill: cell (%d,%d) set to %d.\n", j, i, newVal);
 	}
 
 	if (command == GUESS) {
-		printf("Guess: cell (%d,%d) set to %d.\n", i, j, newVal);
+		printf("Guess: cell (%d,%d) set to %d.\n", j, i, newVal);
 	}
 
 	if (command == REDO) {
-		printf("Redo: changed cell (%d,%d) from %d to %d.\n", i, j, oldVal,
+		printf("Redo: changed cell (%d,%d) from %d to %d.\n", j, i, oldVal,
 				newVal);
 	}
 
 	if (command == UNDO) {
-		printf("Undo: changed cell (%d,%d) from %d to %d.\n", i, j, oldVal,
+		printf("Undo: changed cell (%d,%d) from %d to %d.\n", j, i, oldVal,
 				newVal);
 	}
 }
@@ -169,7 +157,7 @@ void printFormat(CommandType command) {
 
 void printFormatWithRange(CommandType command, int range) {
 
-	printf(BLUE "Command structure: " BLACK);
+	printf("Command structure: ");
 	if (command == SOLVE_COMMAND) {
 		printf("solve X\n");
 		printf("X includes a full or relative path to the file.\n");
@@ -273,7 +261,7 @@ void printInstructionWithParam(CommandType command, int param) {
 void printInstruction(Instruction instType) {
 
 	if (instType == WELCOME) {
-		printf(MAGENTA "Welcome to the sudoku program!\n" BLACK);
+		printf("Welcome to the sudoku program!\n");
 	}
 
 	if (instType == ENTER_COMMAND) {
@@ -281,23 +269,23 @@ void printInstruction(Instruction instType) {
 	}
 
 	if (instType == GAME_SAVED) {
-		printf(GREEN "Game was saved successfully.\n" BLACK);
+		printf("Game was saved successfully.\n");
 	}
 
 	if (instType == SOLVEABLE) {
-		printf(GREEN "Board is solveable.\n" BLACK);
+		printf("The board is solveable.\n");
 	}
 
 	if (instType == UNSOLVEABLE) {
-		printf(RED "Board is unsolveable.\n" BLACK);
+		printf("The board is unsolveable.\n");
 	}
 
 	if (instType == EXITING) {
-		printf(MAGENTA "Hope you enjoyed the game!\nExiting...\n " BLACK);
+		printf("Hope you enjoyed the game!\nExiting...\n");
 	}
 
 	if (instType == WIN) {
-		printf(MAGENTA "Congratulations! You solved the puzzle.\n" BLACK);
+		printf("Congratulations! You solved the puzzle.\n");
 	}
 
 	if (instType == FAKE_WIN) {
@@ -305,10 +293,18 @@ void printInstruction(Instruction instType) {
 				"This puzzle is already solved. Please load in edit mode to edit the puzzle.\n");
 	}
 
+	if (instType == LOAD_PUZZLE){
+		printf("Please use 'solve' or 'edit' to start a new game, or 'exit' to quit.\n");
+	}
+
+	if (instType == NO_CHANGE){
+		printf("Operation finished. No cells were set.\n");
+	}
+
 }
 
 void printError(Error errorType) {
-	printf(RED "Error: " BLACK);
+	printf("Error: ");
 
 	/* Errors releated to legal commands (i.e. valid input) */
 
@@ -401,11 +397,11 @@ void printError(Error errorType) {
 	}
 
 	if (errorType == FGET_FAILED) {
-		printf("fgets was failed. Terminating the program...\n");
+		printf("fgets has failed. Terminating the program...\n");
 	}
 
 	if (errorType == MALLOC_FAILED) {
-		printf("malloc was failed. Terminating the program...\n");
+		printf("malloc has failed. Terminating the program...\n");
 	}
 
 	if (errorType == GUROBI_FAILED) {
@@ -416,7 +412,7 @@ void printError(Error errorType) {
 
 void printInvalidParameter(Error errorType, int start, int end) {
 
-	printf(RED "Error: " BLACK);
+	printf("Error: ");
 
 	if (errorType == INVALID_X) {
 		printf(

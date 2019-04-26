@@ -22,6 +22,72 @@
 #include "LPSolver.h"
 #include "StandardLinkedList.h"
 
+/* ======== Stack ============ */
+
+void emptyStack(Stack *stk) {
+	while (stk->top != NULL) {
+		printf("(%d,%d),%d -> ", top(stk).i, top(stk).j, top(stk).lastUsed);
+		pop(stk);
+	}
+
+	printf("NULL\n");
+}
+
+
+/* ======== LinkedMostList ============ */
+
+void printNode(Node* n) {
+	printf("index: (%d,%d)", n->i, n->j);
+	printf("old value: %d, ", n->oldCellValue);
+	printf("new value: %d\n", n->newCellValue);
+
+}
+
+void printList2(List* l) {
+	Node *q = (l->Head);
+	while (q != NULL) {
+		if (q == l->Head) {
+			printf("(head)");
+		}
+		if (q == l->CurrentMove) {
+			printf("(current)");
+		}
+		if (q == l->Tail) {
+			printf("(tail)");
+		}
+		printf("index: (%d,%d), old val: %d, new val: %d ",q->i, q->j, q->oldCellValue, q->newCellValue);
+		printf("forward = %d, backwards = %d",q->continueForward, q->continueBackwards);
+		printf("\n--> \n");
+		q = q->next;
+	}
+	printf("NULL\n\n");
+}
+void printList(List* l) {
+	int k;
+	Node* q = (l->Head);
+	k = 0;
+	printf("print all  list of moves done:\n");
+	while (q != NULL) {
+		k++;
+		/*		printf("Node num : %d\n",k);*/
+		if (q == (l->CurrentMove)) {
+			printf(" this is the current move: ");
+		}
+		if (q == (l->Head)) {
+			printf(" this is the head of the list: ");
+		}
+		if (q == (l->Tail)) {
+			printf(" this is ths tail of the list: ");
+		}
+		printNode(q);
+		q = q->next;
+	}
+}
+
+/* ========  StandardLinkedList ============ */
+
+/* moved to LPsolver */
+
 void stackTest() {
 	Stack* s = initialize();
 	int i, j, lastUsed;
@@ -362,7 +428,7 @@ int bla() {
 	exit(0);
 	return 0;
 }
-
+/*
 void slistTest() {
 	StandardList *l = createNewStandardList();
 	printStandardList(l);
@@ -384,6 +450,7 @@ void slistTest() {
 	printf("head val after destroy: %d", l->Head->val);
 	exit(0);
 }
+*/
 
 void LPSolTest() {
 	LPSolution *boardSol = initializeLPSolution(2);
@@ -397,7 +464,7 @@ void LPSolTest() {
 		for (j = 0; j < N; j++) {
 			if (mapping[i * N + j] != NULL) {
 				printf("list (%d,%d):", i, j);
-				printStandardList(mapping[i * N + j]);
+				/*printStandardList(mapping[i * N + j]);*/
 			}
 		}
 	}

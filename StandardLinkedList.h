@@ -49,9 +49,4 @@ int lookupInStandardList(StandardList* L, int val);
  */
 void destroyStandardList(StandardList* L);
 
-
-/* ======== TEST FUNCTIONS (remove before submitting) ============ */
-
-void printStandardList(StandardList* l);
-
 #endif /* STANDARDLINKEDLIST_H_ */

@@ -64,10 +64,4 @@ void resetList(List* L);
 void destroyList(List* L);
 
 
-/* ======== TEST FUNCTIONS (remove before submitting) ============ */
-
-void printNode(Node* n);
-void printList(List* l);
-void printList2(List* l);
-
 #endif /* LINKEDMOVESLIST_H_ */

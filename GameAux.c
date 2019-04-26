@@ -70,14 +70,16 @@ void markErroneousCells(SudokuBoard *sudoku) {
 	}
 }
 
-
-
 int getRandomIndex(int *legals, int i, int j, LPSolution *boardSol,
 		int legalNumbers, double *candidates) {
 	int k;
 	double random, accumulativeSum = 0, sum = 0;
+	int debug = 1;
 
 	if (legalNumbers == 1) { /* One legal number for the cell */
+		if (debug)
+			printf("Chosen: %.2f (matching index = 0)\n",
+					getVariableAssignment(boardSol, i, j, legals[0]));
 		return 0; /* His index is 0 */
 	}
 
@@ -89,6 +91,81 @@ int getRandomIndex(int *legals, int i, int j, LPSolution *boardSol,
 		sum += candidates[k];
 	}
 
+	if (debug) {
+		printf("Array before: ");
+		for (k = 0; k < legalNumbers; k++)
+			printf("%.2f ", candidates[k]);
+		printf("\n");
+	}
+
+	if (sum == 0){ /* All cell variables assigned zero */
+		random = rand() % legalNumbers; /* Pick one randomly */
+		printf("Picked index: %d\n",(int)random);
+		return random;
+	}
+
+	for (k = 0; k < legalNumbers; k++) { /* Make probabilities sum equal to 1 */
+		candidates[k] = candidates[k] / sum;
+	}
+
+	if (debug) {
+		printf("Array after: ");
+		for (k = 0; k < legalNumbers; k++)
+			printf("%.2f ", candidates[k]);
+		sum = 0;
+		for (k = 0; k < legalNumbers; k++)
+			sum += candidates[k];
+		printf("(sum: %.2f)", sum);
+		printf("\n");
+	}
+
+	random = ((double) rand()) / ((double) (RAND_MAX) + 1); /* draw a number from 0 to 1 */
+
+	if (debug) {
+		printf("Number drawn: %.5f\nAccumulative sums: ", random);
+		for (k = 0; k < legalNumbers; k++) {
+			accumulativeSum += candidates[k];
+			printf("%.2f ", accumulativeSum);
+		}
+		printf("\n");
+		accumulativeSum = 0;
+	}
+	for (k = 0; k < legalNumbers; k++) { /* Draw an index according to probability */
+		accumulativeSum += candidates[k]; /* Using accumulative sum method */
+		if (random < accumulativeSum) {
+			if (debug)
+				printf("Chosen: %.2f (matching index = %d, value = %d)\n",
+						candidates[k], k, legals[k]);
+			return k;
+		}
+	}
+	return -1; /* Shouldn't reach this line */
+}
+
+int getRandomIndex2(int *legals, int i, int j, LPSolution *boardSol,
+		int legalNumbers, double *candidates) {
+	int k;
+	double random, accumulativeSum = 0, sum = 0;
+
+	if (legalNumbers == 1) { /* One legal number for the cell */
+		return 0; /* His index is 0 */
+	}
+	printf("Cell (%d,%d) legals: ",i,j);
+	for (k = 0; k < legalNumbers; k++) {
+		candidates[k] = getVariableAssignment(boardSol, i, j, legals[k]);
+		printf("%d ", legals[k]);
+	}
+
+	for (k = 0; k < legalNumbers; k++) {
+		sum += candidates[k];
+	}
+
+	if (sum == 0){ /* All cell variables assigned zero */
+		random = rand() % legalNumbers; /* Pick one randomly */
+		printf("Picked index: %d\n",(int)random);
+		return random;
+	}
+
 	for (k = 0; k < legalNumbers; k++) { /* Make probabilities sum equal to 1 */
 		candidates[k] = candidates[k] / sum;
 	}
@@ -98,6 +175,7 @@ int getRandomIndex(int *legals, int i, int j, LPSolution *boardSol,
 	for (k = 0; k < legalNumbers; k++) { /* Draw an index according to probability */
 		accumulativeSum += candidates[k]; /* Using accumulative sum method */
 		if (random < accumulativeSum) {
+			printf("Picked index: %d\n",k);
 			return k;
 		}
 	}

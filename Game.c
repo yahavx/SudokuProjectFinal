@@ -57,7 +57,8 @@ int guess(SudokuBoard *sudoku, double threshold, List *l) {
 	double *candidates;
 	LPSolution *boardSol;
 	int *legals;
-	SudokuBoard *originalSudoku = clone(sudoku);
+	int changed = 0;
+	SudokuBoard *originalSudoku;
 
 	if (isErroneous(sudoku)) {
 		printError(ERRONEOUS_BOARD);
@@ -66,46 +67,59 @@ int guess(SudokuBoard *sudoku, double threshold, List *l) {
 
 	boardSol = getLPSolution(sudoku, 0);
 
-	if (getSolutionStatus(boardSol) == -1) {
-		destroyLPSolution(boardSol);
+	switch (getSolutionStatus(boardSol)) {
+	case -1:
 		printError(GUROBI_FAILED);
-		return 0;
-	}
+		break;
 
-	legals = malloc(N * sizeof(int));
-	assertMalloc((void*) legals);
-	candidates = malloc(N * sizeof(double));
-	assertMalloc((void*) candidates);
+	case 0:
+		printError(UNSOLVEABLE_BOARD);
+		break;
 
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < N; j++) {
+	case 1:
+		originalSudoku = clone(sudoku);
+		legals = malloc(N * sizeof(int));
+		assertMalloc((void*) legals);
+		candidates = malloc(N * sizeof(double));
+		assertMalloc((void*) candidates);
 
-			if (getVariableAssignment(boardSol, i, j, 1) == -1) { /* index (i,j) already has a value */
-				continue;
+		for (i = 0; i < N; i++) {
+			for (j = 0; j < N; j++) {
+
+				if (getVariableAssignment(boardSol, i, j, 1) == -1) { /* index (i,j) already has a value */
+					continue;
+				}
+
+				legalNumbers = getLegalMovesGuess(sudoku, i, j, legals,
+						boardSol, threshold); /* Edits legals */
+
+				if (legalNumbers == 0) {
+					continue;
+				}
+
+				changed = 1;
+				randomIndex = getRandomIndex(legals, i, j, boardSol,
+						legalNumbers, candidates);
+
+				getCell(sudoku, i, j)->value = legals[randomIndex];
+				printCellUpdate(GUESS, i, j, 0, legals[randomIndex]);
 			}
-
-			legalNumbers = getLegalMovesGuess(sudoku, i, j, legals, boardSol,
-					threshold); /* Edits legals */
-
-			if (legalNumbers == 0) {
-				continue;
-			}
-
-			randomIndex = getRandomIndex(legals, i, j, boardSol, legalNumbers,
-					candidates);
-
-			getCell(sudoku, i, j)->value = legals[randomIndex];
-			printCellUpdate(GUESS, i, j, 0, legals[randomIndex]);
 		}
+		if (changed) { /* Indicates a cell value was changed */
+			addChangesToList(sudoku, originalSudoku, l); /* Update moves list */
+		} else {
+			printInstruction(NO_CHANGE);
+		}
+
+		free(candidates);
+		free(legals);
+		destroyBoard(originalSudoku);
+		destroyLPSolution(boardSol);
+		return 1;
 	}
 
-	addChangesToList(sudoku, originalSudoku, l); /* Update moves list */
-
-	free(candidates);
-	free(legals);
-	destroyBoard(originalSudoku);
 	destroyLPSolution(boardSol);
-	return 1;
+	return 0;
 }
 
 int generate(SudokuBoard *sudoku, int X, int Y, List *l) {
@@ -324,7 +338,8 @@ void guessHint(SudokuBoard *sudoku, int i, int j) {
 	case 1:
 		for (v = 1; v <= N; v++) {
 			if (getVariableAssignment(boardSol, i, j, v) > 0) {
-				printGuessHintScore(v,getVariableAssignment(boardSol, i, j, v));
+				printGuessHintScore(v,
+						getVariableAssignment(boardSol, i, j, v));
 			}
 		}
 		break;
@@ -352,6 +367,7 @@ int reset(SudokuBoard* sudoku, List * list) {
 int autofill(SudokuBoard* sudoku, List *l) {
 	int i, j, oldValue, newValue, first = 1, legalVal, N = sudoku->n
 			* sudoku->m;
+	int change = 0;
 
 	SudokuBoard* sudokuCopy;
 
@@ -371,7 +387,8 @@ int autofill(SudokuBoard* sudoku, List *l) {
 			legalVal = isSingleLegalValue(sudokuCopy, i, j); /* Returns the single legal value if exists, 0 otherwise */
 
 			if (legalVal != 0) {
-				printCellUpdate(AUTOFILL,i,j,0,legalVal);
+				change = 1; /* Indicates a change was made */
+				printCellUpdate(AUTOFILL, i, j, 0, legalVal);
 				oldValue = getCell(sudoku, i, j)->value;
 				newValue = legalVal;
 				if (first) {
@@ -384,6 +401,10 @@ int autofill(SudokuBoard* sudoku, List *l) {
 
 		}
 	}
+	if (!change){
+		printInstruction(NO_CHANGE);
+	}
+
 	l->CurrentMove->continueForward = 0; /* continueForward of the last is 0 */
 	markErroneousCells(sudoku);
 	destroyBoard(sudokuCopy);

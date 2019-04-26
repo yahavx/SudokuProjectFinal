@@ -39,46 +39,47 @@ int assertFopen(FILE *fp) {
 }
 
 Command* parseInput(SudokuBoard* sudoku, Status mode) {
-	char str[MAX_COMMAND_LENGTH+1];
+	char str[MAX_COMMAND_LENGTH + 1];
 	char *stream, *command;
-	char c[MAX_COMMAND_LENGTH+4];
+	char c[MAX_COMMAND_LENGTH + 4];
 	CommandType cmd;
 	int row_size, n, m, match;
-	char path[MAX_COMMAND_LENGTH];
-	double threshold;
-	int params[MAX_PARAMS_NUMBER] = { 0 };
-	match = 0;
+	char path[MAX_COMMAND_LENGTH]; /* for edit, solve */
+	double threshold; /* for guess */
+	int params[MAX_PARAMS_NUMBER] = { 0 }; /* for every command that receive int parameters */
+	match = 0; /* indicates the command entered by the user didn't match any valid command yet */
+
 	if (sudoku != NULL) {
 		n = sudoku->n;
 		m = sudoku->m;
-	} else { /*defoult parameters, the board not initialize only in init mode, and their values doesn't matter*/
+	} else { /* default parameters, because the board is uninitialized in init mode, and these values doesn't matter */
 		n = 1;
 		m = 1;
 	}
 
 	row_size = n * m;
 
-	/*initialization of arrays*/
-	initializeArray(c, MAX_COMMAND_LENGTH+4);
-	initializeArray(str,MAX_COMMAND_LENGTH+1);
+	/* initialization of arrays */
+	initializeArray(c, MAX_COMMAND_LENGTH + 4);
+	initializeArray(str, MAX_COMMAND_LENGTH + 1);
 	initializeArray(path, MAX_COMMAND_LENGTH);
 
-	if ((c[0] = fgetc(stdin)) == EOF) { /*we reached EOF therefore we will finish according to the forum */
+	if ((c[0] = fgetc(stdin)) == EOF) { /* we reached EOF, therefore we will finish the program */
 		assertFget();
 		return createCommand(params, path, EXIT, 0);
 	}
 
 	if (c[0] == '\n') {
-		return createCommand(params, path, EMPTY_COMMAND, 0); /* empty command, skip to the next one, print nothing */
+		return createCommand(params, path, EMPTY_COMMAND, 0); /* empty command, skip to the next one */
 	}
 
 	c[1] = fgetc(stdin);
 	assertFget();
 	if (c[0] == '\r' && c[1] == '\n') {
-		return createCommand(params, path, EMPTY_COMMAND, 0); /* empty command, skip to the next one, print nothing */
+		return createCommand(params, path, EMPTY_COMMAND, 0); /* empty command, skip to the next one */
 	}
 
-	if (c[1] == '\n') { /*handaling the case of command which is shorter than 2 chars but not empty command */
+	if (c[1] == '\n') { /* handling the case of which command is shorter than 2 chars but not empty */
 		if (c[0] != ' ' && c[0] != '\t' && c[0] != '\n' && c[0] != '\v'
 				&& c[0] != '\f' && c[0] != 'r') {
 			printError(INVALID_COMMAND);
@@ -91,8 +92,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 
 	strcat(c, str);
 	if ((strlen(c) > MAX_COMMAND_LENGTH)
-			&& (c[MAX_COMMAND_LENGTH] != '\0' && c[MAX_COMMAND_LENGTH] != '\n'&& c[MAX_COMMAND_LENGTH] != EOF)) { /* Command contains more than 256 characters */
-
+			&& (c[MAX_COMMAND_LENGTH] != '\0' && c[MAX_COMMAND_LENGTH] != '\n')) { /* Command contains more than 256 characters */
 
 		finishTheLine(); /* Read until the end of the command*/
 		printError(TOO_LONG);
@@ -101,7 +101,7 @@ Command* parseInput(SudokuBoard* sudoku, Status mode) {
 
 	stream = strtok(c, " \t\r\n");
 	command = stream;
-	stream = strtok(NULL, " \t\r\n"); /* command holds command name, advance stream to next parameter */
+	stream = strtok(NULL, " \t\r\n"); /* command holds command name, advance stream to the first parameter */
 
 	if (command == NULL) { /* First token is NULL, empty command */
 		return createCommand(params, path, EMPTY_COMMAND, 0);

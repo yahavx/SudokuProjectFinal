@@ -41,8 +41,7 @@ void fixCells(SudokuBoard* sudoku, int fixed);
  */
 void markErroneousCells(SudokuBoard *sudoku);
 
-
-/* =========== Help functions for game modul =========== */
+/* ======== Auxiliary functions for game module ======== */
 
 /*
  * Draw a random index, based on probabailies.
@@ -56,12 +55,12 @@ int getRandomIndex(int *legals, int i, int j, LPSolution *boardSol,
 		int legalNumbers, double *candidates);
 
 /*
- * Add to the list all the changes from originalSudoku to sudoku.
- * All the
+ * Add to the list all the changes from originalSudoku to sudoku, i.e. every difference in a cell (i,j) is considered a move.
  *
  * originalSudoku is considered to be the old board (i.e. undo-ing will revert to its values).
  */
-void addChangesToList(SudokuBoard *sudoku, SudokuBoard *originalSudoku, List *list);
+void addChangesToList(SudokuBoard *sudoku, SudokuBoard *originalSudoku,
+		List *list);
 
 /*
  * Get an array of the legal values for cell (i,j)
@@ -87,6 +86,5 @@ int emptyCellsNum(SudokuBoard *sudoku);
  * Clears (i.e. set to 0) every cell that is not fixed.
  */
 void clearUnfixedCells(SudokuBoard *sudoku);
-
 
 #endif /* GAMEAUX_H_ */

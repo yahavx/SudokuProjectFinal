@@ -45,7 +45,7 @@ int lookupInStandardList(StandardList* L, int val) {
 }
 
 void destroyStandardList(StandardList* list) {
-	if (list == NULL){
+	if (list == NULL) {
 		return;
 	}
 	destroyAllStandardNodes(list->Head);
@@ -77,13 +77,3 @@ void destroyAllStandardNodes(StandardNode* head) {
 	}
 }
 
-/* ======== TEST FUNCTIONS (remove before submitting) ============ */
-
-void printStandardList(StandardList* list) {
-	StandardNode *q = list->Head;
-	while (q != NULL) {
-		printf("(%d,%d) --> ", q->val, q->varIndex);
-		q = q->next;
-	}
-	printf("NULL\n\n");
-}

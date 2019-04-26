@@ -17,8 +17,10 @@
 #include "LPSolver.h"
 #include "StandardLinkedList.h"
 
+
 LPSolution* getLPSolution(SudokuBoard *sudoku, int integerSolution) {
-	return NULL;
+	LPSolution *sol = malloc(100);
+	return sol;
 	printf("%d %d", getCell(sudoku, 0, 0)->value, integerSolution);
 }
 
@@ -30,10 +32,6 @@ int getSolutionStatus(LPSolution *boardSol) {
 void destroyLPSolution(LPSolution *boardSol) {
 	int i, j, N = boardSol->N;
 	StandardList **mapping = boardSol->mapping;
-
-	if (boardSol == NULL) {
-		return;
-	}
 
 	for (i = 0; i < N; i++) {
 		for (j = 0; j < N; j++) {
@@ -51,6 +49,7 @@ void destroyLPSolution(LPSolution *boardSol) {
 }
 
 /* ================================ */
+
 
 int getVariableIndex(LPSolution *boardSol, int i, int j, int v) {
 	int N = boardSol->N;

@@ -1,8 +1,8 @@
 /*
- * Stack.h
+ * Stack.h:
+ * This module implements a stack (FIFO).
  *
- *  Created on: 24 áôáø× 2019
- *      Author: yahav
+ * Used to simulate recursion.
  */
 
 #ifndef STACK_H_
@@ -16,7 +16,6 @@
  * This struct represents the list of parameters needed for a recursive call,
  * in order to find number of solutions to a board (i.e. supports exhaustive backtracking).
  */
-
 typedef struct{
 	int i;
 	int j;
@@ -26,7 +25,6 @@ typedef struct{
 /*
  * This struct represents a Stack Node.
  */
-
 typedef struct stackNode{
 	Parameters params;
 	struct stackNode *next;
@@ -35,11 +33,9 @@ typedef struct stackNode{
 /*
  * This struct represent a stack.
  */
-
 typedef struct {
 	StackNode *top;
 } Stack;
-
 
 
 /*
@@ -80,9 +76,5 @@ void destroyStack(Stack *stk);
  */
 int isEmpty(Stack *stk);
 
-
-/* ======== TEST FUNCTIONS (remove before submitting) ============ */
-
-void emptyStack(Stack *stk); /* prints and removes all elements in stack */
 
 #endif /* STACK_H_ */
