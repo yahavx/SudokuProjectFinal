@@ -50,6 +50,7 @@ int set(SudokuBoard* sudoku, int i, int j, int z, Status mode, List* list);
 /*
  * Validate the board using linear programming.
  * Returns 1 if the board is solveable, 0 if unsolveable, and -1 if an error encountered.
+ * If board is erroneous, a message is printed.
  */
 int validate(SudokuBoard *sudoku);
 

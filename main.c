@@ -16,24 +16,23 @@
 #include "Parser.h"
 #include "GameAux.h"
 #include "Solver.h"
-#include "SPBufferset.h"
 #include "FileHandle.h"
 
 int main() {
 	SudokuBoard *sudoku = NULL;
 	Status mode = INIT;
 	Command *c;
-	CommandType lastCommand =ILLEGALY_HANDLED_COMMAND ;
+	CommandType lastCommand = ILLEGALY_HANDLED_COMMAND;
 	int markErrors = 1, temp, print = 0, exit = 0;
 	List *movesList = createNewList();
 	int loaded;
+
 	srand(time(NULL)); /* For functions that base on randomization */
-	SP_BUFF_SET()
 
 	printInstruction(WELCOME);
 
 	while (!exit) {
-		if (lastCommand != EMPTY_COMMAND){
+		if (lastCommand != EMPTY_COMMAND) {
 			printInstruction(ENTER_COMMAND);
 		}
 		c = parseInput(sudoku, mode);

@@ -513,8 +513,6 @@ void tokens(){
 int test() {
 	SudokuBoard *sudoku = initializeBoard(3, 3);
 	destroyBoard(sudoku);
-	tokens();
-	LPSolTest();
 	gameTest();
 	exit(0);
 }

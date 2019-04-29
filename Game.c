@@ -7,10 +7,10 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "MainAux.h"
 #include "Solver.h"
 #include "Game.h"
-#include "SPBufferset.h"
 #include "LinkedMovesList.h"
 #include "GameAux.h"
 #include "LPSolver.h"

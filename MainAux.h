@@ -11,7 +11,6 @@
 #define MAINAUX_H_
 
 #include "Game.h"
-#include "SPBufferset.h"
 
 /* Defines error type */
 typedef enum {
@@ -55,7 +54,8 @@ typedef enum {
  */
 typedef enum {
 	WIN,
-	FAKE_WIN,/* Happens when user loads an already solved board in solve mode */
+	NO_WIN, /* The board is full, but the solution is incorrect */
+	FAKE_WIN, /* Happens when user loads an already solved board in solve mode */
 	SOLVEABLE,
 	UNSOLVEABLE,
 	LOAD_PUZZLE,

@@ -264,8 +264,8 @@ void printInstruction(Instruction instType) {
 		printf("Welcome to the sudoku program!\n");
 	}
 
-	if (instType == ENTER_COMMAND) {
-		printf("Please enter a command:\n");
+	if (instType == ENTER_COMMAND) { /* \n at the start to seperate from last output */
+		printf("\nPlease enter a command:\n");
 	}
 
 	if (instType == GAME_SAVED) {
@@ -290,17 +290,21 @@ void printInstruction(Instruction instType) {
 
 	if (instType == FAKE_WIN) {
 		printf(
-				"This puzzle is already solved. Please load in edit mode to edit the puzzle.\n");
+				"This puzzle is already solved. Please load in <Edit> mode to edit the puzzle.\n");
 	}
 
-	if (instType == LOAD_PUZZLE){
-		printf("Please use 'solve' or 'edit' to start a new game, or 'exit' to quit.\n");
+	if (instType == LOAD_PUZZLE) {
+		printf(
+				"Please use 'solve' or 'edit' to start a new game, or 'exit' to quit.\n");
 	}
 
-	if (instType == NO_CHANGE){
+	if (instType == NO_CHANGE) {
 		printf("Operation finished. No cells were set.\n");
 	}
 
+	if (instType == NO_WIN) {
+		printf("The board is erroneous. The solution is incorrect.\n");
+	}
 }
 
 void printError(Error errorType) {
@@ -351,10 +355,10 @@ void printError(Error errorType) {
 	}
 
 	if (errorType == UNABLE_TO_VERIFY) {
-		printf("Unable to verify board. Saving failed.\n");
+		printf("unable to verify the board. Saving failed.\n");
 	}
 
-	if (errorType == PUZZLE_GENERATOR_FAILED){
+	if (errorType == PUZZLE_GENERATOR_FAILED) {
 		printf("puzzle generator has failed. Please try again.\n");
 	}
 	/* Errors releated to invalid input (wrong commands or parameters) */
@@ -426,34 +430,34 @@ void printInvalidParameter(Error errorType, int start, int end) {
 
 }
 
-void printWrongGameMode(Error errorType, Status mode){
+void printWrongGameMode(Error errorType, Status mode) {
 	printf("Error: ");
 
 	if (errorType == AVAILABLE_IN_EDIT_AND_SOLVE) {
-		printf("this command is available only in Solve and Edit modes.\n");
+		printf("this command is available only in <Solve> and <Edit> modes.\n");
 	}
 
 	if (errorType == AVAILABLE_IN_EDIT) {
-		printf("this command is available only in Edit mode.\n");
+		printf("this command is available only in <Edit> mode.\n");
 	}
 
 	if (errorType == AVAILABLE_IN_SOLVE) {
-		printf("this command is available only in Solve mode.\n");
+		printf("this command is available only in <Solve> mode.\n");
 	}
 
 	printCurrentStatus(mode);
 }
 
-void printCurrentStatus(Status mode){
+void printCurrentStatus(Status mode) {
 	printf("Current mode is ");
-	if (mode == INIT){
-		printf("Init.\n");
+	if (mode == INIT) {
+		printf("<Init>.\n");
 	}
-	if (mode == EDIT){
-		printf("Edit.\n");
+	if (mode == EDIT) {
+		printf("<Edit>.\n");
 	}
-	if (mode == SOLVE){
-		printf("Solve.\n");
+	if (mode == SOLVE) {
+		printf("<Solve>.\n");
 	}
 }
 
@@ -468,7 +472,7 @@ int validateSolution(SudokuBoard* sudoku, Status mode) {
 	}
 
 	if (isFull(sudoku)) {
-		printError(ERRONEOUS_BOARD);
+		printInstruction(NO_WIN);
 		return 0;
 	}
 
