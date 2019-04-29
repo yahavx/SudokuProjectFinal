@@ -200,6 +200,24 @@ void printInstruction(Instruction instType);
  *
  * If the board is full, prints appropriate message (win, or error).
  */
+
+/*
+ * Prints 'wrong mode' message when trying to execute a command in an illegal mode.
+ * @params: errorType - which modes it is available in.
+ *          mode - current game mode.
+ */
+void printWrongGameMode(Error errorType, Status mode);
+
+/*
+ * Prints current game status.
+ */
+void printCurrentStatus(Status mode);
+
+/*
+ * Checks if a game is finished, i.e. board is solved and on solve mode. Returns 1 iff yes.
+ *
+ * Also prints an appropriate message if the board is full (win/error), if on solve mode.
+ */
 int validateSolution(SudokuBoard* sudoku, Status mode);
 
 /*

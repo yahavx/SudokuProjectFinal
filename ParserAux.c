@@ -156,7 +156,7 @@ int validateMarkErrors(char* stream, Status mode, int params[3]) {
 	int count;
 
 	if (mode != SOLVE) {
-		printError(AVAILABLE_IN_SOLVE);
+		printWrongGameMode(AVAILABLE_IN_SOLVE,mode);
 		return 0;
 	}
 
@@ -197,7 +197,7 @@ int validateParamsNumber(char* stream, int paramsNum) {
 
 int validateZeroParameters(char* stream, Status mode, CommandType command) {
 	if (mode == INIT) {
-		printError(AVAILABLE_IN_EDIT_AND_SOLVE);
+		printWrongGameMode(AVAILABLE_IN_EDIT_AND_SOLVE, mode);
 		return 0;
 	}
 
@@ -212,7 +212,7 @@ int validateSet(char* stream, int range, Status mode, int params[3]) {
 	int paramsNum;
 
 	if (mode == INIT) {
-		printError(AVAILABLE_IN_EDIT_AND_SOLVE);
+		printWrongGameMode(AVAILABLE_IN_EDIT_AND_SOLVE, mode);
 		return 0;
 	}
 
@@ -246,7 +246,7 @@ int validateGuess(char* stream, Status mode, double* threshold) {
 	int wrong_value_for_X = 0;
 	double x;
 	if (mode != SOLVE) {
-		printError(AVAILABLE_IN_SOLVE);
+		printWrongGameMode(AVAILABLE_IN_SOLVE, mode);
 		return 0;
 	}
 
@@ -284,7 +284,7 @@ int validateGenerate(char* stream, int range, Status mode, int params[3]) {
 	int paramsNum;
 
 	if (mode != EDIT) {
-		printError(AVAILABLE_IN_EDIT);
+		printWrongGameMode(AVAILABLE_IN_EDIT, mode);
 		return 0;
 	}
 
@@ -311,7 +311,7 @@ int validateHintAndGuessHint(char* stream, int range, Status mode,
 	int paramsNum;
 
 	if (mode != SOLVE) {
-		printError(AVAILABLE_IN_SOLVE);
+		printWrongGameMode(AVAILABLE_IN_SOLVE, mode);
 		return 0;
 	}
 
@@ -337,9 +337,9 @@ int validateHintAndGuessHint(char* stream, int range, Status mode,
 	return 1;
 }
 
-int validateAutofill(char* stream, Status mode) { /*working*/
+int validateAutofill(char* stream, Status mode) {
 	if (mode != SOLVE) {
-		printError(AVAILABLE_IN_SOLVE);
+		printWrongGameMode(AVAILABLE_IN_SOLVE, mode);
 		return 0;
 	}
 	if (!validateParamsNumber(stream, 0)) { /* Too many parameters */
@@ -349,9 +349,9 @@ int validateAutofill(char* stream, Status mode) { /*working*/
 	return 1;
 }
 
-int validateSave(char* stream, Status mode, char path[256]) {/*working*/
+int validateSave(char* stream, Status mode, char path[256]) {
 	if (mode == INIT) {
-		printError(AVAILABLE_IN_EDIT_AND_SOLVE);
+		printWrongGameMode(AVAILABLE_IN_EDIT_AND_SOLVE, mode);
 		return 0;
 	}
 	if (stream == NULL) {
@@ -360,7 +360,7 @@ int validateSave(char* stream, Status mode, char path[256]) {/*working*/
 		return 0;
 	}
 	safeCopy(stream, path);
-	if (!validateParamsNumber(stream, 1)) {/*prints*/
+	if (!validateParamsNumber(stream, 1)) {
 		printFormat(SAVE);
 		return 0;
 	}

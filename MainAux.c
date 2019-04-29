@@ -367,18 +367,6 @@ void printError(Error errorType) {
 		printf("not enough parameters for this command.\n");
 	}
 
-	if (errorType == AVAILABLE_IN_EDIT_AND_SOLVE) {
-		printf("this command is available only in Solve and Edit modes.\n");
-	}
-
-	if (errorType == AVAILABLE_IN_EDIT) {
-		printf("this command is available only in Edit mode.\n");
-	}
-
-	if (errorType == AVAILABLE_IN_SOLVE) {
-		printf("this command is available only in Solve mode.\n");
-	}
-
 	if (errorType == TOO_LONG) {
 		printf("a command should contain no more than 256 characters.\n");
 	}
@@ -436,6 +424,37 @@ void printInvalidParameter(Error errorType, int start, int end) {
 		printf("the board contains only %d empty cells.\n", start);
 	}
 
+}
+
+void printWrongGameMode(Error errorType, Status mode){
+	printf("Error: ");
+
+	if (errorType == AVAILABLE_IN_EDIT_AND_SOLVE) {
+		printf("this command is available only in Solve and Edit modes.\n");
+	}
+
+	if (errorType == AVAILABLE_IN_EDIT) {
+		printf("this command is available only in Edit mode.\n");
+	}
+
+	if (errorType == AVAILABLE_IN_SOLVE) {
+		printf("this command is available only in Solve mode.\n");
+	}
+
+	printCurrentStatus(mode);
+}
+
+void printCurrentStatus(Status mode){
+	printf("Current mode is ");
+	if (mode == INIT){
+		printf("Init.\n");
+	}
+	if (mode == EDIT){
+		printf("Edit.\n");
+	}
+	if (mode == SOLVE){
+		printf("Solve.\n");
+	}
 }
 
 int validateSolution(SudokuBoard* sudoku, Status mode) {
