@@ -50,12 +50,11 @@ int main() {
 				mode = SOLVE;
 				resetList(movesList); /* Clear moves list */
 				print = 1;
-				if (isSolved(sudoku)) {
+				if (validateSolution(sudoku, mode)) {
 					printInstruction(FAKE_WIN);
 					mode = INIT;
 				}
 			}
-
 			break;
 
 		case EDIT_WITH_FILE_NAME:
@@ -93,7 +92,7 @@ int main() {
 					movesList); /* 'set' assumes the first parameter is row, so need to swap */
 			if (print) { /* The set operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
-					printInstruction(LOAD_PUZZLE);
+					printInstruction(WIN);
 					mode = INIT;
 				}
 			}
@@ -112,7 +111,7 @@ int main() {
 			print = guess(sudoku, c->threshold, movesList);
 			if (print) { /* The guess operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
-					printInstruction(LOAD_PUZZLE);
+					printInstruction(WIN);
 					mode = INIT;
 				}
 			}
@@ -124,10 +123,18 @@ int main() {
 
 		case UNDO:
 			print = undo(sudoku, movesList);
+			if (validateSolution(sudoku, mode)) { /* Board is solved */
+				printInstruction(WIN);
+				mode = INIT;
+			}
 			break;
 
 		case REDO:
 			print = redo(sudoku, movesList);
+			if (validateSolution(sudoku, mode)) { /* Board is solved */
+				printInstruction(WIN);
+				mode = INIT;
+			}
 			break;
 
 		case SAVE:
@@ -153,7 +160,7 @@ int main() {
 			print = autofill(sudoku, movesList);
 			if (print) { /* The autofill operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
-					printInstruction(LOAD_PUZZLE);
+					printInstruction(WIN);
 					mode = INIT;
 				}
 			}
@@ -161,6 +168,10 @@ int main() {
 
 		case RESET:
 			print = reset(sudoku, movesList);
+			if (validateSolution(sudoku, mode)) { /* Board is solved */
+				printInstruction(WIN);
+				mode = INIT;
+			}
 			break;
 
 		case EXIT:

@@ -286,16 +286,13 @@ void printInstruction(Instruction instType) {
 
 	if (instType == WIN) {
 		printf("Congratulations! You solved the puzzle.\n");
+		printf(
+				"Please use 'solve' or 'edit' to start a new game, or 'exit' to quit.\n");
 	}
 
 	if (instType == FAKE_WIN) {
 		printf(
 				"This puzzle is already solved. Please load in <Edit> mode to edit the puzzle.\n");
-	}
-
-	if (instType == LOAD_PUZZLE) {
-		printf(
-				"Please use 'solve' or 'edit' to start a new game, or 'exit' to quit.\n");
 	}
 
 	if (instType == NO_CHANGE) {
@@ -467,7 +464,6 @@ int validateSolution(SudokuBoard* sudoku, Status mode) {
 	}
 
 	if (isSolved(sudoku)) {
-		printInstruction(WIN);
 		return 1;
 	}
 
@@ -480,17 +476,7 @@ int validateSolution(SudokuBoard* sudoku, Status mode) {
 }
 
 int isSolved(SudokuBoard *sudoku) {
-	int i, j, N = sudoku->n * sudoku->m;
-
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < N; j++) {
-			if (getCell(sudoku, i, j)->value == 0) {
-				return 0;
-			}
-		}
-	}
-
-	if (isErroneous(sudoku)) {
+	if (!isFull(sudoku) || isErroneous(sudoku)) {
 		return 0;
 	}
 
@@ -509,15 +495,12 @@ void initCell(Cell *c, int data) {
 	c->value = data;
 }
 
-/*
- * Returns 1 iff the board is full (i.e. all cells are filled with a value from 1 to N).
- */
 int isFull(SudokuBoard *sudoku) {
 	int i, j, N = sudoku->n * sudoku->m;
 
 	for (i = 0; i < N; i++) {
 		for (j = 0; j < N; j++) {
-			if (getCell(sudoku, i, j)->value == 0) {
+			if (getCell(sudoku, i, j)->value == 0) { /* Empty cell, board is not full */
 				return 0;
 			}
 		}

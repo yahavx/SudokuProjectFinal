@@ -58,7 +58,6 @@ typedef enum {
 	FAKE_WIN, /* Happens when user loads an already solved board in solve mode */
 	SOLVEABLE,
 	UNSOLVEABLE,
-	LOAD_PUZZLE,
 	WELCOME,
 	EXITING,
 	ENTER_COMMAND,
@@ -224,5 +223,10 @@ int validateSolution(SudokuBoard* sudoku, Status mode);
  * Returns 1 iff the board is solved.
  */
 int isSolved(SudokuBoard *sudoku);
+
+/*
+ * Returns 1 iff the board is full (i.e. all cells are filled with a value from 1 to N).
+ */
+int isFull(SudokuBoard *sudoku);
 
 #endif /* MAINAUX_H_ */

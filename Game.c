@@ -356,7 +356,7 @@ int reset(SudokuBoard* sudoku, List * list) {
 
 	while (list->CurrentMove != list->Head) { /* While didn't reach the sentinel */
 		getCell(sudoku, list->CurrentMove->i, list->CurrentMove->j)->value =
-				list->CurrentMove->oldCellValue;
+				list->CurrentMove->oldCellValue; /* Set the value of (i,j) to oldVal */
 		list->CurrentMove = list->CurrentMove->prev;
 	}
 
@@ -384,10 +384,10 @@ int autofill(SudokuBoard* sudoku, List *l) {
 				continue;
 			}
 
-			legalVal = isSingleLegalValue(sudokuCopy, i, j); /* Returns the single legal value if exists, 0 otherwise */
+			legalVal = isSingleLegalValue(sudokuCopy, i, j); /* Returns the single legal value of (i,j) if exists, 0 otherwise */
 
 			if (legalVal != 0) {
-				change = 1; /* Indicates a change was made */
+				change = 1; /* Indicates a change in the board was made */
 				printCellUpdate(AUTOFILL, i, j, 0, legalVal);
 				oldValue = getCell(sudoku, i, j)->value;
 				newValue = legalVal;
@@ -406,7 +406,7 @@ int autofill(SudokuBoard* sudoku, List *l) {
 	}
 
 	l->CurrentMove->continueForward = 0; /* continueForward of the last is 0 */
-	markErroneousCells(sudoku);
+	markErroneousCells(sudoku); /* Set error status of every cell */
 	destroyBoard(sudokuCopy);
 	return 1;
 }
