@@ -30,6 +30,7 @@ int main() {
 	srand(time(NULL)); /* For functions that base on randomization */
 
 	printInstruction(WELCOME);
+	printInstruction(LOAD_PUZZLE);
 
 	while (!exit) {
 		if (lastCommand != EMPTY_COMMAND) {
@@ -93,6 +94,7 @@ int main() {
 			if (print) { /* The set operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
 					printInstruction(WIN);
+					printInstruction(LOAD_PUZZLE);
 					mode = INIT;
 				}
 			}
@@ -112,6 +114,7 @@ int main() {
 			if (print) { /* The guess operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
 					printInstruction(WIN);
+					printInstruction(LOAD_PUZZLE);
 					mode = INIT;
 				}
 			}
@@ -126,6 +129,7 @@ int main() {
 			if (print) {
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
 					printInstruction(WIN);
+					printInstruction(LOAD_PUZZLE);
 					mode = INIT;
 				}
 			}
@@ -136,6 +140,7 @@ int main() {
 			if (print) { /* The guess operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
 					printInstruction(WIN);
+					printInstruction(LOAD_PUZZLE);
 					mode = INIT;
 				}
 			}
@@ -175,6 +180,7 @@ int main() {
 			if (print) { /* The guess operation was successful */
 				if (validateSolution(sudoku, mode)) { /* Board is solved */
 					printInstruction(WIN);
+					printInstruction(LOAD_PUZZLE);
 					mode = INIT;
 				}
 			}

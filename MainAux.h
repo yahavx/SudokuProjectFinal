@@ -56,6 +56,7 @@ typedef enum {
 	WIN,
 	NO_WIN, /* The board is full, but the solution is incorrect */
 	FAKE_WIN, /* Happens when user loads an already solved board in solve mode */
+	LOAD_PUZZLE,
 	SOLVEABLE,
 	UNSOLVEABLE,
 	WELCOME,
@@ -211,6 +212,11 @@ void printWrongGameMode(Error errorType, Status mode);
  * Prints current game status.
  */
 void printCurrentStatus(Status mode);
+
+/*
+ * Prints the list of available commands when game is in "mode".
+ */
+void printAvailableCommands(Status mode);
 
 /*
  * Checks if a game is finished, i.e. board is solved and on solve mode. Returns 1 iff yes.

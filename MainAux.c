@@ -286,6 +286,9 @@ void printInstruction(Instruction instType) {
 
 	if (instType == WIN) {
 		printf("Congratulations! You solved the puzzle.\n");
+	}
+
+	if (instType == LOAD_PUZZLE) {
 		printf(
 				"Please use 'solve' or 'edit' to start a new game, or 'exit' to quit.\n");
 	}
@@ -443,18 +446,36 @@ void printWrongGameMode(Error errorType, Status mode) {
 	}
 
 	printCurrentStatus(mode);
+	printAvailableCommands(mode);
 }
 
 void printCurrentStatus(Status mode) {
 	printf("Current mode is ");
 	if (mode == INIT) {
-		printf("<Init>.\n");
+		printf("<Init>.");
 	}
 	if (mode == EDIT) {
-		printf("<Edit>.\n");
+		printf("<Edit>.");
 	}
 	if (mode == SOLVE) {
 		printf("<Solve>.\n");
+	}
+}
+
+void printAvailableCommands(Status mode) {
+	printf("Available commands: ");
+	if (mode == INIT) {
+		printf("solve, edit.\n");
+	}
+
+	if (mode == EDIT) {
+		printf(
+				"solve, edit, print_board, set, validate, generate, undo, redo, save, num_solutions, reset, exit.");
+	}
+
+	if (mode == SOLVE) {
+		printf(
+				"solve, edit, mark_errors, print_board, set, validate, guess, undo, redo, save, hint, guess_hint, num_solutions, autofill, reset, exit.\n");
 	}
 }
 
