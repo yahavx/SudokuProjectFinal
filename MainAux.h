@@ -214,11 +214,6 @@ void printWrongGameMode(Error errorType, Status mode);
 void printCurrentStatus(Status mode);
 
 /*
- * Prints the list of available commands when game is in "mode".
- */
-void printAvailableCommands(Status mode);
-
-/*
  * Checks if a game is finished, i.e. board is solved and on solve mode. Returns 1 iff yes.
  *
  * Also prints an appropriate message if the board is full (win/error), if on solve mode.
