@@ -123,17 +123,21 @@ int main() {
 
 		case UNDO:
 			print = undo(sudoku, movesList);
-			if (validateSolution(sudoku, mode)) { /* Board is solved */
-				printInstruction(WIN);
-				mode = INIT;
+			if (print) {
+				if (validateSolution(sudoku, mode)) { /* Board is solved */
+					printInstruction(WIN);
+					mode = INIT;
+				}
 			}
 			break;
 
 		case REDO:
 			print = redo(sudoku, movesList);
-			if (validateSolution(sudoku, mode)) { /* Board is solved */
-				printInstruction(WIN);
-				mode = INIT;
+			if (print) { /* The guess operation was successful */
+				if (validateSolution(sudoku, mode)) { /* Board is solved */
+					printInstruction(WIN);
+					mode = INIT;
+				}
 			}
 			break;
 
@@ -168,9 +172,11 @@ int main() {
 
 		case RESET:
 			print = reset(sudoku, movesList);
-			if (validateSolution(sudoku, mode)) { /* Board is solved */
-				printInstruction(WIN);
-				mode = INIT;
+			if (print) { /* The guess operation was successful */
+				if (validateSolution(sudoku, mode)) { /* Board is solved */
+					printInstruction(WIN);
+					mode = INIT;
+				}
 			}
 			break;
 
